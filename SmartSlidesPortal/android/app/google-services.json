@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "954653453079",
+    "project_id": "smartslides-b916a",
+    "storage_bucket": "smartslides-b916a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954653453079:android:abb8c88a4d9f6b6a126552",
+        "android_client_info": {
+          "package_name": "com.example.web"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "954653453079-6q6ddpl33hp1gppv8vb5e64n1tolim6f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.web",
+            "certificate_hash": "0ffb93d0df80fad04d16ff2b58e74e1b57fa5451"
+          }
+        },
+        {
+          "client_id": "954653453079-j9lqi7dive7m4pfv0i42s57fp48q8vts.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW5D4-q4lsDekXDblTF3HXW3F3DvSHP8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "954653453079-j9lqi7dive7m4pfv0i42s57fp48q8vts.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
