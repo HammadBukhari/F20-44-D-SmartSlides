@@ -20,19 +20,13 @@ class _MobileHomeScreenState extends State<MobileHomeScreen> {
       } else if (currentFragment.value == HomeScreenFragment.coursesList) {
         selectedIndex = 0;
       }
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("SmartSlides"),
-        centerTitle: true,
-      ),
       body: IndexedStack(
         index: selectedIndex,
         children: [

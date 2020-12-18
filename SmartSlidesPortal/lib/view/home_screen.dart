@@ -1,7 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/colors/gf_color.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:web/main.dart';
+import 'package:web/view/mobile_home_screen.dart';
+
+import '../helper.dart';
 
 ValueNotifier<HomeScreenFragment> currentFragment =
     ValueNotifier(HomeScreenFragment.coursesList);
@@ -22,10 +26,6 @@ Widget buildCoursesList(BuildContext context) {
           children: [
             ListTile(
               onTap: () {
-                // HomeScreenFragmentChangeNotification(
-                //         currentFragment: HomeScreenFragment.coursesList,
-                //         destFragment: HomeScreenFragment.lectureList)
-                //     .dispatch(context);
                 currentFragment.value = HomeScreenFragment.lectureList;
               },
               leading: Icon(Icons.arrow_forward_ios),
@@ -34,11 +34,11 @@ Widget buildCoursesList(BuildContext context) {
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward_ios),
-              title: Text("HCI"),
+              title: Text('HCI'),
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward_ios),
-              title: Text("FYP-2"),
+              title: Text('FYP-2'),
             ),
           ],
         ),
@@ -132,7 +132,19 @@ Widget buildExpandedLectureDescQuestionsList(BuildContext context) {
   );
 }
 
-Widget buildExpandedLectureDescHeader(BuildContext context, String title) {
+Widget buildExpandedLectureDescHeader(
+  BuildContext context,
+  String title,
+  String authorName,
+  int slidesCount,
+  String estTime,
+) {
+  final tableTextStyle = TextStyle(
+    fontSize: 14,
+    color: Colors.black,
+    letterSpacing: 0.9,
+    fontWeight: FontWeight.w300,
+  );
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Column(
@@ -142,16 +154,16 @@ Widget buildExpandedLectureDescHeader(BuildContext context, String title) {
         Text(
           title,
           style: TextStyle(
-            fontFamily: "SF Pro Display",
             fontWeight: FontWeight.w600,
             fontSize: 32,
             color: Color(0xff000000).withOpacity(0.87),
           ),
         ),
-        new Container(
+        Container(
           height: 1.00,
           color: Color(0xffefefef),
         ),
+        SizedBox(height: 10),
         Container(
           width: 250,
           child: Table(
@@ -160,33 +172,22 @@ Widget buildExpandedLectureDescHeader(BuildContext context, String title) {
                 children: [
                   Text(
                     'Created by',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: const Color(0x99000000),
-                      letterSpacing: 0.9,
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: tableTextStyle,
                     textAlign: TextAlign.left,
                   ),
-                  Text("Answer"),
+                  Text(authorName, style: tableTextStyle),
                 ],
               ),
               TableRow(
                 children: [
-                  Text("Last updated"),
-                  Text("Answer"),
+                  Text('Slides', style: tableTextStyle),
+                  Text(slidesCount.toString(), style: tableTextStyle),
                 ],
               ),
               TableRow(
                 children: [
-                  Text("Slides"),
-                  Text("20"),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Text("Est. Time"),
-                  Text("40 mins"),
+                  Text('Duration', style: tableTextStyle),
+                  Text(estTime, style: tableTextStyle),
                 ],
               ),
             ],
@@ -278,7 +279,13 @@ Widget buildExpandedLectureDescHeader(BuildContext context, String title) {
 Widget buildExpandedLectureDesc(BuildContext context) {
   return Column(
     children: [
-      buildExpandedLectureDescHeader(context, "Week 1 - Introduction"),
+      buildExpandedLectureDescHeader(
+        context,
+        'Week 1 - Introduction',
+        'Amna Basharat',
+        20,
+        '40 minutes',
+      ),
       buildExpandedLectureDescQuestionsList(context),
     ],
   );
@@ -298,61 +305,63 @@ Widget buildCourseBar(BuildContext context) {
   );
 }
 
-Widget buildCourseLectureTitle(BuildContext context, {bool isSelected = true}) {
+Widget buildCourseLectureTitle(BuildContext context, String title,
+    String subtitle, String date, bool hasNewQuestion,
+    {bool isSelected = true}) {
   return InkWell(
     onTap: () {
       currentFragment.value = HomeScreenFragment.lectureDetail;
     },
     child: Container(
       color:
-          isSelected ? Color(0xff32A05F).withOpacity(0.08) : Colors.transparent,
+          isSelected ? GFColors.PRIMARY.withOpacity(0.08) : Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("May 5",
+            Text(date,
                 style: TextStyle(
-                  fontFamily: "SF Pro Display",
                   fontWeight: FontWeight.w300,
                   fontSize: 10,
                   color: Color(0xff000000).withOpacity(0.60),
                 )),
             SizedBox(height: 5),
             Text(
-              "Week 1 - Intro",
+              title,
               style: TextStyle(
-                fontFamily: "SF Pro Display",
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
                 color: Color(0xff000000).withOpacity(0.87),
               ),
             ),
             SizedBox(height: 10),
-            Text("Introductory lesson",
+            Text(subtitle,
                 style: TextStyle(
-                  fontFamily: "SF Pro Display",
+                  fontFamily: 'SF Pro Display',
                   fontWeight: FontWeight.w300,
                   fontSize: 14,
                   color: Color(0xff000000).withOpacity(0.87),
                 )),
             SizedBox(height: 5),
-            new Container(
-              height: 22.00,
-              width: 95.00,
-              decoration: BoxDecoration(
-                color: Color(0xff32A05F).withOpacity(0.12),
-                borderRadius: BorderRadius.circular(4.00),
-              ),
-              child: Center(
-                child: Text("NEW QUESTION",
-                    style: TextStyle(
-                      fontFamily: "SF Pro Display",
-                      fontSize: 10,
-                      color: Color(0xff32a05f),
-                    )),
-              ),
-            ),
+            hasNewQuestion
+                ? Container(
+                    height: 22.00,
+                    width: 95.00,
+                    decoration: BoxDecoration(
+                      color: GFColors.PRIMARY.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(4.00),
+                    ),
+                    child: Center(
+                      child: Text('NEW QUESTION',
+                          style: TextStyle(
+                            fontFamily: 'SF Pro Display',
+                            fontSize: 10,
+                            color: GFColors.PRIMARY,
+                          )),
+                    ),
+                  )
+                : Container(),
             SizedBox(height: 5),
           ],
         ),
@@ -368,7 +377,7 @@ Widget courseHeaderBar() {
         width: 10,
       ),
       Text(
-        "CS-504 UXE",
+        'CS-504 UXE',
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -382,11 +391,11 @@ Widget courseHeaderBar() {
           height: 40.0,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
-            color: const Color(0xFF32A05F),
+            color: GFColors.PRIMARY,
           ),
           child: Center(
             child: Text(
-              "+ Invite",
+              '+ Invite',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 17,
@@ -406,10 +415,15 @@ Widget buildCourseLecturesBar(BuildContext context) {
       Expanded(
         child: ListView(
           children: [
-            buildCourseLectureTitle(context, isSelected: true),
-            buildCourseLectureTitle(context, isSelected: false),
-            buildCourseLectureTitle(context, isSelected: false),
-            buildCourseLectureTitle(context, isSelected: false),
+            buildCourseLectureTitle(
+                context, 'Week 1 - Intro', 'Introduction Lesson', 'Oct 2', true,
+                isSelected: true),
+            buildCourseLectureTitle(context, 'Week 2 - Basis of UX',
+                'UX intro, UI vs UX', 'Oct 9', false,
+                isSelected: false),
+            buildCourseLectureTitle(context, 'Week 3 - Usability Principles',
+                'Building usable systems', 'Oct 16', true,
+                isSelected: false),
           ],
         ),
       ),
@@ -423,18 +437,21 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('SmartSlides'),
+        backgroundColor: GFColors.PRIMARY,
         centerTitle: true,
       ),
-      body: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(width: 250, child: buildCourseBar(context)),
-          Container(width: 400, child: buildCourseLecturesBar(context)),
-          Expanded(
-            child: buildExpandedLectureDesc(context),
-          )
-        ],
-      ),
+      body: !isMobile(context)
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 250, child: buildCourseBar(context)),
+                Container(width: 400, child: buildCourseLecturesBar(context)),
+                Expanded(
+                  child: buildExpandedLectureDesc(context),
+                )
+              ],
+            )
+          : MobileHomeScreen(),
     );
   }
 }

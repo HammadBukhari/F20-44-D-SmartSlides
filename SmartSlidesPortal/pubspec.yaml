@@ -16,9 +16,10 @@ dependencies:
   firebase_auth: ^0.18.4+1
   firebase_core: ^0.5.3
   firebase_storage: ^5.2.0
-  flutter_screenutil: ^3.2.0
+  flutter_screenutil: ^4.0.0
   flutter_svg: ^0.19.2+1
   fluttertoast: ^7.1.5
+  form_field_validator: ^1.0.1
   get: ^3.17.1
   get_it: ^5.0.3
   getwidget: ^1.2.4
