@@ -30,7 +30,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen> {
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          buildCourseBar(context),
+          buildCourseBar(),
           buildCourseLecturesBar(context),
           buildExpandedLectureDesc(context),
         ],

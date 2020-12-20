@@ -9,7 +9,7 @@ import '../helper.dart';
 
 ValueNotifier<HomeScreenFragment> currentFragment =
     ValueNotifier(HomeScreenFragment.coursesList);
-Widget buildCoursesList(BuildContext context) {
+Widget buildCoursesList() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
@@ -47,12 +47,12 @@ Widget buildCoursesList(BuildContext context) {
   );
 }
 
-Widget buildUserProfileBadge(BuildContext context, String name, String rollNo) {
+Widget buildUserProfileBadge(String name, String rollNo) {
   return Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       GFAvatar(
-        backgroundImage: AssetImage("assets/salman.png"),
+        backgroundImage: AssetImage('assets/salman.png'),
       ),
       SizedBox(width: 10),
       Column(
@@ -60,14 +60,13 @@ Widget buildUserProfileBadge(BuildContext context, String name, String rollNo) {
         children: [
           Text(name,
               style: TextStyle(
-                fontFamily: "SF Pro Display",
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
                 color: Color(0xff2c2731),
               )),
           Text(rollNo,
               style: TextStyle(
-                fontFamily: "Arial",
+                fontFamily: 'Arial',
                 fontSize: 14,
                 color: Color(0xff2c2731),
               )),
@@ -77,20 +76,20 @@ Widget buildUserProfileBadge(BuildContext context, String name, String rollNo) {
   );
 }
 
-Widget buildQuestionAndItsResponses(BuildContext context) {
+Widget buildQuestionAndItsResponses() {
   return Column(
     children: [
       Row(
         children: [
           SizedBox(width: 10),
           GFAvatar(
-            backgroundImage: AssetImage("assets/salman.png"),
+            backgroundImage: AssetImage('assets/salman.png'),
             size: 28,
           ),
           SizedBox(width: 10),
           Expanded(
             child: AutoSizeText(
-              "What exactly cover the after part of User Experience?",
+              'What exactly cover the after part of User Experience?',
               maxLines: 3,
             ),
           ),
@@ -114,20 +113,20 @@ Widget buildQuestionAndItsResponses(BuildContext context) {
                   //borderSide: const BorderSide(),
                   ),
               hintStyle:
-                  TextStyle(color: Colors.black26, fontFamily: "WorkSansLight"),
-              hintText: "Be the first to answer this question"),
+                  TextStyle(color: Colors.black26, fontFamily: 'WorkSansLight'),
+              hintText: 'Be the first to answer this question'),
         ),
       ),
     ],
   );
 }
 
-Widget buildExpandedLectureDescQuestionsList(BuildContext context) {
+Widget buildExpandedLectureDescQuestionsList() {
   return ListView(
     shrinkWrap: true,
     children: [
-      buildQuestionAndItsResponses(context),
-      buildQuestionAndItsResponses(context),
+      buildQuestionAndItsResponses(),
+      buildQuestionAndItsResponses(),
     ],
   );
 }
@@ -286,20 +285,20 @@ Widget buildExpandedLectureDesc(BuildContext context) {
         20,
         '40 minutes',
       ),
-      buildExpandedLectureDescQuestionsList(context),
+      buildExpandedLectureDescQuestionsList(),
     ],
   );
 }
 
-Widget buildCourseBar(BuildContext context) {
+Widget buildCourseBar() {
   return Container(
     color: Color(0xffF4F4F4),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: 10),
-        buildUserProfileBadge(context, "Salman Mustufa", "17I-0111"),
-        Expanded(child: buildCoursesList(context)),
+        buildUserProfileBadge("Salman Mustufa", "17I-0111"),
+        Expanded(child: buildCoursesList()),
       ],
     ),
   );
@@ -444,7 +443,7 @@ class HomeScreen extends StatelessWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 250, child: buildCourseBar(context)),
+                Container(width: 250, child: buildCourseBar()),
                 Container(width: 400, child: buildCourseLecturesBar(context)),
                 Expanded(
                   child: buildExpandedLectureDesc(context),
