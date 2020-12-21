@@ -6,11 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
-<<<<<<< HEAD
 import 'dart:math' as math;
-=======
-
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
 // List<CameraDescription> cameras = [];
 
 void main() async {
@@ -22,11 +18,6 @@ void main() async {
   final picker = ImagePicker();
   final pickedFile = await picker.getImage(
     source: ImageSource.gallery,
-<<<<<<< HEAD
-=======
-    maxHeight: 1000,
-    maxWidth: 1000,
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
   );
   final startTime = DateTime.now();
   final image = img.decodeImage(File(pickedFile.path).readAsBytesSync());
@@ -57,7 +48,6 @@ void main() async {
   var xmax = array[0] + array[2] * 0.5;
   var ymax = array[1] + array[3] * 0.5;
 
-<<<<<<< HEAD
   final dw = (input_size - resize_ratio * org_w) / 2;
   final dh = (input_size - resize_ratio * org_h) / 2;
 
@@ -76,28 +66,6 @@ void main() async {
       ymin.toString() +
       " " +
       ymax.toString());
-=======
-  final array = platformChannel(pickedFile.path);
-  final input_size = 416;
-  final org_h = 1000;
-  final org_w = 1000;
-
-// #print("My points: ", cors)
-// final resize_ratio = min(input_size / org_w, input_size / org_h);
-
-// xmin = array[0] - array[2] * 0.5
-// ymin = array[1] - array[3] * 0.5
-// xmax = array[0] + array[2] * 0.5
-// ymax = array[1] + array[3] * 0.5
-
-// dw = (input_size - resize_ratio * org_w) / 2
-// dh = (input_size - resize_ratio * org_h) / 2
-
-// xmin = 1.0 * (xmin - dw) / resize_ratio
-// xmax = 1.0 * (xmax - dw) / resize_ratio
-// ymin = 1.0 * (ymin - dh) / resize_ratio
-// ymax = 1.0 * (ymax - dh) / resize_ratio
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
 
   // ImageProcessor imageProcessor = ImageProcessorBuilder()
   //     .add(ResizeOp(416, 416, ResizeMethod.NEAREST_NEIGHBOUR))
@@ -116,7 +84,6 @@ void main() async {
 
   // platformChannel(buffer.());
 
-<<<<<<< HEAD
   runApp(My2ndApp(imageFile, xmin, ymin, xmax, ymax));
 }
 
@@ -134,35 +101,8 @@ class RectanglePainter extends CustomPainter {
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke;
     canvas.drawRect(Rect.fromPoints(Offset(x1, y1), Offset(x2, y2)), paint1);
-=======
-  // runApp(My2ndApp(image));
-}
-
-class My2ndApp extends StatelessWidget {
-  final File image;
-  final int x1;
-  final int y1;
-  final int x2;
-  final int y2;
-  My2ndApp(this.image, this.x1, this.y1, this.x2, this.y2);
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Container(
-          child: Center(
-            child: Image.file(image),
-          ),
-        ),
-      ),
-    );
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
   }
 
-<<<<<<< HEAD
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
@@ -194,9 +134,6 @@ class My2ndApp extends StatelessWidget {
 }
 
 Future<Float64List> platformChannel(Float64List imageData) async {
-=======
-void platformChannel(String imageData) async {
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
   const platform = const MethodChannel('SmartSlidesRecorder/YOLO');
   try {
     final result =
