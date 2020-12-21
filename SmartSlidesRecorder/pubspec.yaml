@@ -23,10 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  camera: ^0.5.8+9
-  cupertino_icons: ^1.0.0
   image: ^2.1.18
-  tflite: ^1.1.1
+  # tflite: ^1.1.1
   image_picker: ^0.6.7+15
 
 dev_dependencies:
