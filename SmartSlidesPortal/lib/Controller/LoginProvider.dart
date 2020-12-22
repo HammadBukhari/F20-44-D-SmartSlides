@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:web/model/User.dart' as app_user;
+import 'package:get/get.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,8 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:path_provider/path_provider.dart';
 
 enum LoginResult {
   inProgress,
@@ -68,34 +67,22 @@ class LoginProvider {
             toastLength: Toast.LENGTH_LONG);
         loginNotifier.value = LoginResult.loginSuccess;
       }
-    } on PlatformException catch (exception) {
-      if (exception.code == 'ERROR_USER_NOT_FOUND') {
-        loginNotifier.value = LoginResult.noUserFound;
-        await Fluttertoast.showToast(
-            msg: 'No user found against provided email',
-            backgroundColor: Colors.white,
-            textColor: Colors.black,
-            toastLength: Toast.LENGTH_LONG);
-      } else if (exception.code == 'ERROR_WRONG_PASSWORD') {
-        await Fluttertoast.showToast(
-            msg: 'Incorrect password',
-            gravity: ToastGravity.CENTER,
-            backgroundColor: Colors.white,
-            textColor: Colors.black,
-            toastLength: Toast.LENGTH_LONG);
-        loginNotifier.value = LoginResult.incorrectPassword;
-      }
+    } on FirebaseAuthException catch (exception) {
+      loginNotifier.value = LoginResult.unknowError;
+      // ignore: unawaited_futures
+      Get.showSnackbar(GetBar(
+        title: 'An error occured while logging in',
+        message: exception.message,
+        duration: Duration(seconds: 5),
+      ));
+      return;
     }
   }
 
   Future<void> registerWithEmail(
       String name, String email, String password, ui.Image image) async {
     loginNotifier.value = LoginResult.inProgress;
-    await Fluttertoast.showToast(
-        msg: 'Registering. Please wait...',
-        // backgroundColor: Colors.white,
-        // textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG);
+
     UserCredential authResult;
     try {
       authResult = await auth.createUserWithEmailAndPassword(
@@ -121,24 +108,15 @@ class LoginProvider {
 
       await Fluttertoast.showToast(msg: 'Registration success');
       loginNotifier.value = LoginResult.loginSuccess;
-    } on PlatformException catch (exception) {
-      if (exception.code == 'ERROR_EMAIL_ALREADY_IN_USE') {
-        await Fluttertoast.showToast(
-            msg: 'Email already in use',
-            backgroundColor: Colors.white,
-            textColor: Colors.black,
-            toastLength: Toast.LENGTH_LONG);
-        loginNotifier.value = LoginResult.emailInUse;
-        return;
-      } else if (exception.code == 'ERROR_WEAK_PASSWORD') {
-        await Fluttertoast.showToast(
-            msg: 'Password too weak. Use a combination of letters and numbers',
-            // backgroundColor: Colors.white,
-            // textColor: Colors.black,
-            toastLength: Toast.LENGTH_LONG);
-        loginNotifier.value = LoginResult.passwordTooWeak;
-        return;
-      }
+    } on FirebaseAuthException catch (exception) {
+      loginNotifier.value = LoginResult.unknowError;
+      // ignore: unawaited_futures
+      Get.showSnackbar(GetBar(
+        title: 'An error occured while registering',
+        message: exception.message,
+        duration: Duration(seconds: 5),
+      ));
+      return;
     }
   }
 

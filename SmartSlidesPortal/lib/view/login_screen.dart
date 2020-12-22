@@ -6,7 +6,6 @@ import 'package:getwidget/getwidget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:getwidget/shape/gf_button_shape.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:web/Controller/LoginProvider.dart';
@@ -80,9 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         if (_isLoadingDialogShowing) {
+          Navigator.of(context).pop();
           _isLoadingDialogShowing = false;
-
-          Navigator.pop(context);
         }
       }
     });
@@ -238,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 text: widget.onRegistrationMode ? 'Create An Account' : 'Login',
                 textStyle: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 16,
                   letterSpacing: 3,
                   fontWeight: FontWeight.w600,
                 ),

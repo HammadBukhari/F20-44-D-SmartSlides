@@ -2,7 +2,9 @@ package com.example.recording
 
 import android.util.Log
 import androidx.annotation.NonNull
-import com.example.recording.ml.ProjectorLiteModelConcrete2
+import com.example.recording.ml.PersonLiteModel
+import com.example.recording.ml.ProjectorLiteModel
+import com.example.recording.ml.WhiteboardLiteModel
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -13,67 +15,71 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "SmartSlidesRecorder/YOLO"
 
-    fun getWhiteboardPredictions(filePath: DoubleArray)  : DoubleArray{
-        val model = ProjectorLiteModelConcrete2.newInstance(context)
-//        val bitmap: Bitmap = BitmapFactory.decodeFile(filePath)
-//        val imageProcessor = ImageProcessor.Builder()
-//                .add(ResizeOp(416, 416, ResizeOp.ResizeMethod.BILINEAR))
-//                .add(NormalizeOp(0f,255f))
-//                .build()
-//        var tImage = TensorImage(DataType.FLOAT32)
-//        tImage.load(bitmap!!)
-//        tImage = imageProcessor.process(tImage)
+    fun initPredictions(inputImage : DoubleArray) : DoubleArray{
+        // init all models
+        val projectModel = ProjectorLiteModel.newInstance(context)
+        val whiteboardModel = WhiteboardLiteModel.newInstance(context)
+        val personModel = PersonLiteModel.newInstance(context)
 
+        // copy image input into tensor buffer
+        val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1, 416, 416, 3), DataType.FLOAT32)
+        val tImage = TensorImage(DataType.FLOAT32)
+        val floatArray = FloatArray(inputImage.size)
 
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 416, 416, 3), DataType.FLOAT32)
-//        inputFeature0.loadBuffer(tImage.buffer)
-//        var input = arrayOf<Array<Array<Array<Float>>>>()
-//        for (i in 0..255){
-//            for (j in 0..255){
-//                for (k in 0..2){
-//                    input[0][i][j][k] = 1f
-//                }
-//            }
-//        }
-//        val input = FloatArray(1*416*416*3){1f}
-//        inputFeature0.loadArray(input)
-//         Runs model inference and gets result.
-
-//        inputFeature0.loadBuffer()
-         var tImage = TensorImage(DataType.FLOAT32)
-        val floatArray = FloatArray(filePath.size)
-        for (i in 0 until filePath.size) {
-            floatArray[i] = filePath.get(i).toFloat()
+        // convert double (which flutter serializer expect) to float (which TF except)
+        for (i in inputImage.indices) {
+            floatArray[i] = inputImage.get(i).toFloat()
         }
+
         tImage.load(floatArray, intArrayOf(1,416,416,3));
-        inputFeature0.loadBuffer(tImage.buffer)
+        inputFeature.loadBuffer(tImage.buffer)
 
+        val outputs = inferFromYolo(inputFeature)
+        val flattenList = mutableListOf<Double>()
+        for (i in 0..2){
+            for (j in 0..5) {
+                flattenList.add(outputs[i][j])
+            }
+        }
+        // convert List<Double> to doubleArray for serialization
+        val flattenOutput = DoubleArray(3*6)
+        for (i in flattenOutput.indices){
+            flattenOutput[i] = flattenList[i]
+        }
+        projectModel.close()
+        whiteboardModel.close()
+        personModel.close()
+        return flattenOutput
 
-        val outputs = model.process(inputFeature0)
-        val outputFeature0  : TensorBuffer= outputs.outputFeature0AsTensorBuffer
-//        Log.d("DATA TYPE", outputFeature0.dataType.toString());
-        val array = outputFeature0.floatArray
-        // 15210
-        
+    }
 
+    private fun inferFromYolo (inputTensor : TensorBuffer) : Array<DoubleArray>{
+        val projectModel = ProjectorLiteModel.newInstance(context)
+        val whiteboardModel = WhiteboardLiteModel.newInstance(context)
+        val personModel = PersonLiteModel.newInstance(context)
+        // create 3x6 for 3 models output
+        val outputs = Array(3) {DoubleArray(6) {0.0} }
+        // infer from projector
+        val projectOutput = projectModel.process(inputTensor)
+        outputs[0]  = getOutputFromYoloOutputBuffer(projectOutput.outputFeature0AsTensorBuffer.floatArray)
 
+        // infer from whiteboard
+        val whiteboardOutput = whiteboardModel.process(inputTensor)
+        outputs[1]  = getOutputFromYoloOutputBuffer(whiteboardOutput.outputFeature0AsTensorBuffer.floatArray)
 
-//        Log.d("test", array.size.toString());
-//        Log.d("buffer0", array[0].toString());
-//        Log.d("buffer1", array[1].toString());
-//        Log.d("buffer2", array[2].toString());
-//        Log.d("buffer3", array[3].toString());
-//        Log.d("buffer4", array[4].toString());
-//        Log.d("buffer5", array[5].toString());
-//        for (i in 13000 until 14000){
-//            Log.d("Output $i", array[i].toString());
-//
-//        }
+        // infer from Person
+        val personOutput = personModel.process(inputTensor)
+        outputs[2]  = getOutputFromYoloOutputBuffer(personOutput.outputFeature0AsTensorBuffer.floatArray)
+        return outputs;
+
+    }
+
+    private fun getOutputFromYoloOutputBuffer (outputBuffer : FloatArray) : DoubleArray{
         var i = 0
         var maxIndex : Int = -1
         var maxScore : Float = 0F
-        while (i < array.size){
-            val score = array[i + 4] * array[i + 5]
+        while (i < outputBuffer.size){
+            val score = outputBuffer[i + 4] * outputBuffer[i + 5]
 
             if (score > 0.4 && score > maxScore){
                 maxScore = score
@@ -81,14 +87,22 @@ class MainActivity: FlutterActivity() {
             }
             i+=6;
         }
-        Log.d("arary index", maxIndex.toString());
-        Log.d("score", maxScore.toString());
-        val newArr = array.copyOfRange(maxIndex, maxIndex + 6) //outputFeature0.shape;
-        val result = DoubleArray(6)
-
-        for (j in 0..5){
-            result[j] = newArr[j].toDouble()
+//        Log.d("index", maxIndex.toString());
+//        Log.d("score", maxScore.toString());
+        // convert output to DoubleArray (as serializer expect)
+        var result = DoubleArray(6)
+        // no object found
+        if (maxIndex == -1) {
+            result = DoubleArray(6){0.0}
+        }else {
+            val newArr = outputBuffer.copyOfRange(maxIndex, maxIndex + 6)
+            for (j in 0..5){
+                result[j] = newArr[j].toDouble()
+            }
         }
+//        for (j in result.indices)
+//        Log.d("RESULT $j=>",result[j].toString());
+
         return result
 
 
@@ -101,9 +115,9 @@ class MainActivity: FlutterActivity() {
             call, result ->
 
             if (call.method == "getWhiteboardPredictions") {
-                val shape = getWhiteboardPredictions(call.arguments as DoubleArray)
+                val output = initPredictions(call.arguments as DoubleArray)
 
-                    result.success(shape)
+                    result.success(output)
 
 
             } else {
@@ -112,3 +126,4 @@ class MainActivity: FlutterActivity() {
         }
     }
 }
+

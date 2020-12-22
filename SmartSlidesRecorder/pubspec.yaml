@@ -23,15 +23,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-<<<<<<< HEAD
-=======
-  # camera: ^0.5.8+9
-  # cupertino_icons: ^1.0.0
->>>>>>> 74031de180b7ddb6210a845179ad80c408e26787
+  camera: ^0.6.0
+  gallery_saver: ^2.0.1
   image: ^2.1.18
-  # tflite: ^1.1.1
   image_picker: ^0.6.7+15
   tflite_flutter_helper: ^0.1.2
+  path_provider: ^1.6.24
 
 dev_dependencies:
   flutter_test:
@@ -48,9 +45,7 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/
-
-
+    - assets/
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

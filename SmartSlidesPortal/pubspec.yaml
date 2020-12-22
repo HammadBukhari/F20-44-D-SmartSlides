@@ -10,12 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^0.14.4
+  # cloud_firestore: ^0.14.4
   cupertino_icons: ^1.0.1
-  device_preview: ^0.6.2-beta
-  firebase_auth: ^0.18.4+1
-  firebase_core: ^0.5.3
-  firebase_storage: ^5.2.0
+  # device_preview: ^0.6.2-beta
+  # firebase_auth: ^0.18.4+1
+  # firebase_core: ^0.5.3
+  firebase_core: 0.5.1
+  firebase_auth: 0.18.2
+  cloud_firestore: 0.14.2
+  # firebase_storage: ^5.2.0
   flutter_screenutil: ^4.0.0
   flutter_svg: ^0.19.2+1
   fluttertoast: ^7.1.5
@@ -27,6 +30,7 @@ dependencies:
   lite_rolling_switch: ^0.1.1
   responsive_framework: ^0.0.14
   auto_size_text: ^2.1.0
+  flutter_phoenix: ^0.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

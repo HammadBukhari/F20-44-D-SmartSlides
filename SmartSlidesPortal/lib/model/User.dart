@@ -4,11 +4,13 @@ class User {
   String uid;
   String name;
   String email;
+  List<String> portals;
 
   User({
     this.uid,
     this.name,
     this.email,
+    this.portals,
   });
 
   Map<String, dynamic> toMap() {
@@ -16,6 +18,7 @@ class User {
       'uid': uid,
       'name': name,
       'email': email,
+      'portals': portals,
     };
   }
 
@@ -26,6 +29,7 @@ class User {
       uid: map['uid'],
       name: map['name'],
       email: map['email'],
+      portals: map['portals'] != null ? List<String>.from(map['portals']) : [],
     );
   }
 

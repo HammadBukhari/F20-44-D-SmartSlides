@@ -1,46 +1,49 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
+import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 import 'package:getwidget/colors/gf_color.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/main.dart';
+import 'package:web/model/portal.dart';
 import 'package:web/view/mobile_home_screen.dart';
+import 'package:web/view/slide_view_screen.dart';
 
 import '../helper.dart';
 
 ValueNotifier<HomeScreenFragment> currentFragment =
     ValueNotifier(HomeScreenFragment.coursesList);
 Widget buildCoursesList() {
+  final portals = GetIt.I<PortalProvider>().portals;
+  // final selectedPortal = GetIt.I<PortalProvider>().selectedPortal.value;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      // SizedBox(height: 10),
-      // Text(
-      //   "My Courses",
-      //   style: TextStyle(
-      //     fontSize: 21,
-      //   ),
-      // ),
       SizedBox(height: 10),
       Expanded(
-        child: ListView(
-          children: [
-            ListTile(
-              onTap: () {
-                currentFragment.value = HomeScreenFragment.lectureList;
+        child: ListView.builder(
+          itemCount: portals.length,
+          itemBuilder: (context, index) {
+            return ValueListenableBuilder<Portal>(
+              valueListenable: GetIt.I<PortalProvider>().selectedPortal,
+              builder: (context, selectedPortal, child) {
+                return ListTile(
+                  onTap: () {
+                    currentFragment.value = HomeScreenFragment.lectureList;
+                    GetIt.I<PortalProvider>().selectedPortal.value =
+                        portals[index];
+                  },
+                  leading: Icon(Icons.arrow_forward_ios),
+                  title: Text(portals[index].name),
+                  selected: (index == 0 && selectedPortal == null) ||
+                      (portals[index] == selectedPortal),
+                );
               },
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('UXE'),
-              selected: true,
-            ),
-            ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('HCI'),
-            ),
-            ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('FYP-2'),
-            ),
-          ],
+            );
+          },
         ),
       ),
     ],
@@ -52,7 +55,7 @@ Widget buildUserProfileBadge(String name, String rollNo) {
     mainAxisSize: MainAxisSize.min,
     children: [
       GFAvatar(
-        backgroundImage: AssetImage('assets/salman.png'),
+        backgroundImage: AssetImage('assets/dummy_human.png'),
       ),
       SizedBox(width: 10),
       Column(
@@ -83,7 +86,7 @@ Widget buildQuestionAndItsResponses() {
         children: [
           SizedBox(width: 10),
           GFAvatar(
-            backgroundImage: AssetImage('assets/salman.png'),
+            backgroundImage: AssetImage('assets/dummy_human.png'),
             size: 28,
           ),
           SizedBox(width: 10),
@@ -150,14 +153,84 @@ Widget buildExpandedLectureDescHeader(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 32,
-            color: Color(0xff000000).withOpacity(0.87),
-          ),
-        ),
+        !isMobile(context)
+            ? Row(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 32,
+                      color: Color(0xff000000).withOpacity(0.87),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Get.to(SlideViewScreen());
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200.0,
+                        height: 40.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16.0),
+                          color: GFColors.PRIMARY,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Open SmartSlides',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 32,
+                      color: Color(0xff000000).withOpacity(0.87),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Get.to(SlideViewScreen());
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200.0,
+                        height: 40.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16.0),
+                          color: GFColors.PRIMARY,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Open SmartSlides',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
         Container(
           height: 1.00,
           color: Color(0xffefefef),
@@ -208,7 +281,7 @@ Widget buildExpandedLectureDescHeader(
         //       width: 10,
         //     ),
         //     GFAvatar(
-        //       backgroundImage: AssetImage("assets/salman.png"),
+        //       backgroundImage: AssetImage("assets/dummy_human.png"),
         //     ),
         //     Text("Dr Amna ")
         //   ],
@@ -229,7 +302,7 @@ Widget buildExpandedLectureDescHeader(
         //       width: 10,
         //     ),
         //     GFAvatar(
-        //       backgroundImage: AssetImage("assets/salman.png"),
+        //       backgroundImage: AssetImage("assets/dummy_human.png"),
         //     ),
         //     Text("Dr Amna Besharat")
         //   ],
@@ -291,13 +364,15 @@ Widget buildExpandedLectureDesc(BuildContext context) {
 }
 
 Widget buildCourseBar() {
+  final user = GetIt.I<PortalProvider>().loginProvider.getLoggedInUser();
+  final rollNo = user.email.substring(0, user.email.indexOf('@'));
   return Container(
     color: Color(0xffF4F4F4),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: 10),
-        buildUserProfileBadge("Salman Mustufa", "17I-0111"),
+        buildUserProfileBadge(user.name, rollNo),
         Expanded(child: buildCoursesList()),
       ],
     ),
@@ -370,40 +445,67 @@ Widget buildCourseLectureTitle(BuildContext context, String title,
 }
 
 Widget courseHeaderBar() {
-  return Row(
-    children: [
-      SizedBox(
-        width: 10,
-      ),
-      Text(
-        'CS-504 UXE',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      Expanded(child: Container()),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          width: 100.0,
-          height: 40.0,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
-            color: GFColors.PRIMARY,
+  final provider = GetIt.I<PortalProvider>();
+  return ValueListenableBuilder(
+    valueListenable: provider.selectedPortal,
+    builder: (context, value, child) {
+      final selectedPortal = provider.selectedPortal.value;
+      final name = selectedPortal == null
+          ? provider.portals.first.name
+          : selectedPortal.name;
+      final code = selectedPortal == null
+          ? provider.portals.first.portalCode
+          : selectedPortal.portalCode;
+      return Row(
+        children: [
+          SizedBox(
+            width: 10,
           ),
-          child: Center(
-            child: Text(
-              '+ Invite',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Expanded(child: Container()),
+          InkWell(
+            onTap: () {
+              Get.defaultDialog(
+                title: 'Portal Code',
+                middleText: 'Share this code for others to join',
+                actions: [
+                  Text(
+                    code,
+                    style: TextStyle(fontSize: 35),
+                  ),
+                ],
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 100.0,
+                height: 40.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  color: GFColors.PRIMARY,
+                ),
+                child: Center(
+                  child: Text(
+                    '+ Invite',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    ],
+        ],
+      );
+    },
   );
 }
 
@@ -430,17 +532,256 @@ Widget buildCourseLecturesBar(BuildContext context) {
   );
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final provider = GetIt.I<PortalProvider>();
+
+  final nameController = TextEditingController();
+
+  final codeController = TextEditingController();
+
+  final formKey = GlobalKey<FormState>();
+
+  final sectionController = TextEditingController();
+
+  bool isLoaded = false;
+
+  final borderStyle = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(90.0)),
+      borderSide: BorderSide(color: Colors.white24));
+
+  @override
+  void initState() {
+    super.initState();
+    initPortals();
+  }
+
+  void initPortals() async {
+    await provider.getAllPortalOfUser();
+    isLoaded = true;
+    setState(() {});
+  }
+
+  void buildJoinDialog(BuildContext context) {
+    Get.defaultDialog(
+      title: 'Join Portal',
+      middleText: '',
+      confirm: GFButton(
+        onPressed: () async {
+          Get.back();
+          final code = codeController.text.trim();
+          final result = await provider.joinPortal(code);
+          if (result) {
+            // ignore: unawaited_futures
+            Get.defaultDialog(
+              title: 'Portal Joined',
+              middleText: code,
+              middleTextStyle: TextStyle(fontSize: 35),
+              confirm: GFButton(
+                text: 'Okay',
+                onPressed: () {
+                  Get.back();
+                  provider.newPortalCreated.value = true;
+                },
+              ),
+            );
+          } else {
+            // ignore: unawaited_futures
+            Get.defaultDialog(
+              title: 'Incorrect Code',
+              middleText:
+                  'The code you entered does not match with any portal.',
+              middleTextStyle: TextStyle(fontSize: 16),
+              confirm: GFButton(
+                text: 'Okay',
+                onPressed: () {
+                  Get.back();
+                },
+              ),
+            );
+          }
+        },
+        text: 'Join',
+      ),
+      actions: [
+        TextFormField(
+          controller: codeController,
+          validator: RequiredValidator(errorText: 'Code is required'),
+          decoration: InputDecoration(
+              contentPadding: const EdgeInsets.all(24.0),
+              prefixIcon: Icon(Icons.class_),
+              border: borderStyle,
+              hintStyle: TextStyle(
+                color: Colors.black26,
+              ),
+              hintText: 'Portal Code'),
+        ),
+      ],
+    );
+  }
+
+  void buildJoinOrCreateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GFButton(
+                onPressed: () {
+                  Get.back();
+                  buildCreateDialog(context);
+                },
+                shape: GFButtonShape.pills,
+                color: GFColors.PRIMARY,
+                size: GFSize.LARGE,
+                text: 'Create Portal',
+              ),
+              SizedBox(height: 15),
+              Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Text('OR'),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              SizedBox(height: 15),
+              GFButton(
+                onPressed: () {
+                  Get.back();
+                  buildJoinDialog(context);
+                },
+                shape: GFButtonShape.pills,
+                size: GFSize.LARGE,
+                color: GFColors.PRIMARY,
+                text: 'Join Portal',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void buildCreateDialog(BuildContext context) {
+    Get.defaultDialog(
+      title: 'Create Portal',
+      middleText: '',
+      confirm: GFButton(
+        onPressed: () async {
+          Get.back();
+
+          final name = nameController.text.trim();
+          final section = sectionController.text.trim();
+
+          final code = await provider.createPortal(name, section);
+          Get.back();
+          // ignore: unawaited_futures
+          Get.defaultDialog(
+            title: 'Portal Created',
+            middleText: code,
+            middleTextStyle: TextStyle(fontSize: 35),
+            actions: [
+              Text(
+                'Use code above to invite students',
+              ),
+            ],
+            confirm: GFButton(
+              text: 'Okay',
+              onPressed: () {
+                Get.back();
+                // Get.off(HomeScreen());
+                provider.newPortalCreated.value = true;
+              },
+            ),
+          );
+        },
+        text: 'Create',
+      ),
+      actions: [
+        TextFormField(
+          validator: RequiredValidator(errorText: 'Name is required'),
+          controller: nameController,
+          decoration: InputDecoration(
+              contentPadding: const EdgeInsets.all(24.0),
+              prefixIcon: Icon(Icons.supervised_user_circle_outlined),
+              border: borderStyle,
+              hintStyle: TextStyle(
+                color: Colors.black26,
+              ),
+              hintText: 'Name'),
+        ),
+        TextFormField(
+          validator: RequiredValidator(errorText: 'Section is required'),
+          controller: sectionController,
+          decoration: InputDecoration(
+              contentPadding: const EdgeInsets.all(24.0),
+              prefixIcon: Icon(Icons.class_),
+              border: borderStyle,
+              hintStyle: TextStyle(
+                color: Colors.black26,
+              ),
+              hintText: 'Section'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('SmartSlides'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              buildJoinOrCreateDialog(context);
+            },
+          ),
+        ],
         backgroundColor: GFColors.PRIMARY,
         centerTitle: true,
       ),
-      body: !isMobile(context)
-          ? Row(
+      body: ValueListenableBuilder(
+        valueListenable: provider.newPortalCreated,
+        builder: (context, value, widget) {
+          if (!isLoaded) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (isLoaded && provider.portals.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                        width: isMobile(context) ? 150 : 250,
+                        child: AspectRatio(
+                            aspectRatio: 1,
+                            child: drawIllustration('assets/no_portal.svg'))),
+                    SizedBox(height: 30),
+                    Text(
+                      'You are not a part of any portal\n Create one or join through code using "+" button above',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          if (!isMobile(context)) {
+            return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(width: 250, child: buildCourseBar()),
@@ -449,8 +790,11 @@ class HomeScreen extends StatelessWidget {
                   child: buildExpandedLectureDesc(context),
                 )
               ],
-            )
-          : MobileHomeScreen(),
+            );
+          }
+          return MobileHomeScreen();
+        },
+      ),
     );
   }
 }
