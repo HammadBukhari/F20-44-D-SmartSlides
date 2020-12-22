@@ -585,7 +585,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 text: 'Okay',
                 onPressed: () {
                   Get.back();
-                  provider.newPortalCreated.value = true;
+                  provider.newPortalCreated.value = false;
                 },
               ),
             );
