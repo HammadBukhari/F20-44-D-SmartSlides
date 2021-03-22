@@ -509,7 +509,7 @@ Widget courseHeaderBar() {
   );
 }
 
-Widget buildCourseLecturesBar(BuildContext context) {
+Widget buildCourseLecturesBar(BuildContext context, Portal portal) {
   return Column(
     children: [
       courseHeaderBar(),
@@ -669,29 +669,71 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void buildCreateDialog(BuildContext context) {
-    Get.defaultDialog(
-      title: 'Create Portal',
-      middleText: '',
-      confirm: GFButton(
-        onPressed: () async {
-          Get.back();
-
-          final name = nameController.text.trim();
-          final section = sectionController.text.trim();
-
-          final code = await provider.createPortal(name, section);
-          Get.back();
-          // ignore: unawaited_futures
-          Get.defaultDialog(
-            title: 'Portal Created',
-            middleText: code,
-            middleTextStyle: TextStyle(fontSize: 35),
-            actions: [
-              Text(
-                'Use code above to invite students',
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                validator: RequiredValidator(errorText: 'Name is required'),
+                controller: nameController,
+                decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(24.0),
+                    prefixIcon: Icon(Icons.supervised_user_circle_outlined),
+                    border: borderStyle,
+                    hintStyle: TextStyle(
+                      color: Colors.black26,
+                    ),
+                    hintText: 'Name'),
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                validator: RequiredValidator(errorText: 'Section is required'),
+                controller: sectionController,
+                decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(24.0),
+                    prefixIcon: Icon(Icons.class_),
+                    border: borderStyle,
+                    hintStyle: TextStyle(
+                      color: Colors.black26,
+                    ),
+                    hintText: 'Section'),
               ),
             ],
-            confirm: GFButton(
+          ),
+          actions: [
+            GFButton(
+              onPressed: () async {
+                Get.back();
+
+                final name = nameController.text.trim();
+                final section = sectionController.text.trim();
+
+                final code = await provider.createPortal(name, section);
+                Get.back();
+                // ignore: unawaited_futures
+                buildGroupCreatedDialog(code);
+              },
+              text: 'Create',
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  buildGroupCreatedDialog(String code) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Portal Created'),
+          contentTextStyle: TextStyle(fontSize: 35),
+          content: Text(code),
+          actions: [
+            GFButton(
               text: 'Okay',
               onPressed: () {
                 Get.back();
@@ -699,34 +741,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 provider.newPortalCreated.value = true;
               },
             ),
-          );
-        },
-        text: 'Create',
-      ),
+          ],
+        );
+      },
+    );
+
+    Get.defaultDialog(
+      title: 'Portal Created',
+      middleText: code,
+      middleTextStyle: TextStyle(fontSize: 35),
       actions: [
-        TextFormField(
-          validator: RequiredValidator(errorText: 'Name is required'),
-          controller: nameController,
-          decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(24.0),
-              prefixIcon: Icon(Icons.supervised_user_circle_outlined),
-              border: borderStyle,
-              hintStyle: TextStyle(
-                color: Colors.black26,
-              ),
-              hintText: 'Name'),
-        ),
-        TextFormField(
-          validator: RequiredValidator(errorText: 'Section is required'),
-          controller: sectionController,
-          decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(24.0),
-              prefixIcon: Icon(Icons.class_),
-              border: borderStyle,
-              hintStyle: TextStyle(
-                color: Colors.black26,
-              ),
-              hintText: 'Section'),
+        Text(
+          'Use code above to invite students',
         ),
       ],
     );
@@ -765,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: isMobile(context) ? 150 : 250,
                         child: AspectRatio(
                             aspectRatio: 1,
-                            child: drawIllustration('assets/no_portal.svg'))),
+                            child: drawIllustration('assets/no_portal.jpeg'))),
                     SizedBox(height: 30),
                     Text(
                       'You are not a part of any portal\n Create one or join through code using "+" button above',
@@ -785,7 +811,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(width: 250, child: buildCourseBar()),
-                Container(width: 400, child: buildCourseLecturesBar(context)),
+                Container(
+                    width: 400,
+                    child: buildCourseLecturesBar(context, Portal())),
                 Expanded(
                   child: buildExpandedLectureDesc(context),
                 )

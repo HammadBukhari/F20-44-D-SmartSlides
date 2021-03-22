@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (selectedRole == Role.student) {
       return 'assets/undraw_exams_g4ow.svg';
     } else {
-      return 'assets/login_illus.svg';
+      return 'assets/login_illus.jpeg';
     }
   }
 
@@ -133,14 +133,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ResponsiveWrapper(
                     maxWidth: 300,
                     minWidth: 150,
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: kIsWeb
-                          ? Image.network(
-                              illustrationPath,
-                            )
-                          : SvgPicture.asset(illustrationPath),
-                    ),
+                    child: kIsWeb
+                        ? Image.asset(
+                            illustrationPath,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          )
+                        : SvgPicture.asset(illustrationPath),
                   ),
                 ],
               ),
@@ -266,10 +265,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         color: Color(0xff6C63FF).withOpacity(0.5),
                         child: Stack(
+                          fit: StackFit.expand,
                           children: [
                             kIsWeb
-                                ? Image.network(
+                                ? Image.asset(
                                     illustrationPath,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment.center,
                                   )
                                 : SvgPicture.asset(illustrationPath),
                             Padding(

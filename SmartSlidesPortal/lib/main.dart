@@ -28,7 +28,7 @@ class HomeScreenFragmentChangeNotification extends Notification {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final user = await FirebaseAuth.instance.currentUser;
+  final user =  FirebaseAuth.instance.currentUser;
   GetIt.I.registerSingleton<LoginProvider>(LoginProvider(user: user));
   GetIt.I.registerSingleton<PortalProvider>(PortalProvider());
   final userLoggedIn = user != null;
@@ -60,12 +60,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       allowFontScaling: false,
-      child: GetMaterialApp(
-        home: SafeArea(
-          child: initScreen,
-        ), //SlideViewScreen(),
-        debugShowCheckedModeBanner: false,
-      ),
+      builder: () {
+        return GetMaterialApp(
+          home: SafeArea(
+            child: initScreen,
+          ), //SlideViewScreen(),
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }

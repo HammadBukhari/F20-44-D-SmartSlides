@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web/main.dart';
+import 'package:web/model/portal.dart';
 import 'home_screen.dart';
 
 class MobileHomeScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen> {
         index: selectedIndex,
         children: [
           buildCourseBar(),
-          buildCourseLecturesBar(context),
+          buildCourseLecturesBar(context, Portal()),
           buildExpandedLectureDesc(context),
         ],
       ),

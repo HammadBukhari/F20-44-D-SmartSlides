@@ -52,7 +52,8 @@ class PortalProvider {
         name: name,
         section: section,
         portalCode: classCode,
-        particpants: {currentUser.uid: true});
+        ownerUid: currentUser.uid,
+        participants: {currentUser.uid: true});
     // add for local use
     portals.add(toCreate);
     await FirebaseFirestore.instance

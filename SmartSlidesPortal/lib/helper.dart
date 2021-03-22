@@ -9,7 +9,7 @@ bool isMobile(BuildContext context) {
 
 Widget drawIllustration(String path) {
   return kIsWeb
-      ? Image.network(
+      ? Image.asset(
           path,
         )
       : SvgPicture.asset(path);

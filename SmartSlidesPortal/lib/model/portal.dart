@@ -1,17 +1,17 @@
 import 'dart:convert';
 
-
-
 class Portal {
   String portalCode;
   String name;
   String section;
-  Map<String, bool> particpants;
+  String ownerUid;
+  Map<String, bool> participants;
   Portal({
     this.portalCode,
     this.name,
     this.section,
-    this.particpants,
+    this.participants,
+    this.ownerUid,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,7 +19,8 @@ class Portal {
       'portalCode': portalCode,
       'name': name,
       'section': section,
-      'particpants': particpants,
+      'participants': participants,
+      'ownerUid': ownerUid,
     };
   }
 
@@ -30,7 +31,8 @@ class Portal {
       portalCode: map['portalCode'],
       name: map['name'],
       section: map['section'],
-      particpants: Map<String, bool>.from(map['particpants']),
+      participants: Map<String, bool>.from(map['participants']),
+      ownerUid: map['ownerUid'],
     );
   }
 

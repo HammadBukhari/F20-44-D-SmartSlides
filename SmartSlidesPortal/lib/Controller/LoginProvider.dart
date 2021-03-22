@@ -19,7 +19,7 @@ enum LoginResult {
   noInternet,
   emailInUse,
   passwordTooWeak,
-  unknowError,
+  unknownError,
 }
 
 enum Role { teacher, student }
@@ -47,7 +47,7 @@ class LoginProvider {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<bool> checkMailRegistered(String email, {bool emitMessages}) async {
-    print('checkMailRegisted accessed');
+    print('checkMailRegister accessed');
     final users =
         (await FirebaseAuth.instance.fetchSignInMethodsForEmail(email));
     return users.isNotEmpty;
@@ -68,10 +68,10 @@ class LoginProvider {
         loginNotifier.value = LoginResult.loginSuccess;
       }
     } on FirebaseAuthException catch (exception) {
-      loginNotifier.value = LoginResult.unknowError;
+      loginNotifier.value = LoginResult.unknownError;
       // ignore: unawaited_futures
       Get.showSnackbar(GetBar(
-        title: 'An error occured while logging in',
+        title: 'An error occurred while logging in',
         message: exception.message,
         duration: Duration(seconds: 5),
       ));
@@ -109,7 +109,7 @@ class LoginProvider {
       await Fluttertoast.showToast(msg: 'Registration success');
       loginNotifier.value = LoginResult.loginSuccess;
     } on FirebaseAuthException catch (exception) {
-      loginNotifier.value = LoginResult.unknowError;
+      loginNotifier.value = LoginResult.unknownError;
       // ignore: unawaited_futures
       Get.showSnackbar(GetBar(
         title: 'An error occured while registering',
