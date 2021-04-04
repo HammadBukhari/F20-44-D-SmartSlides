@@ -6,8 +6,11 @@ import 'package:get_it/get_it.dart';
 import 'package:getwidget/colors/gf_color.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:intl/intl.dart';
+import 'package:web/Controller/LectureProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/main.dart';
+import 'package:web/model/lecture.dart';
 import 'package:web/model/portal.dart';
 import 'package:web/view/add_lecture_screen.dart';
 import 'package:web/view/mobile_home_screen.dart';
@@ -350,17 +353,40 @@ Widget buildExpandedLectureDescHeader(
 }
 
 Widget buildExpandedLectureDesc(BuildContext context) {
-  return Column(
-    children: [
-      buildExpandedLectureDescHeader(
-        context,
-        'Week 1 - Introduction',
-        'Amna Basharat',
-        20,
-        '40 minutes',
-      ),
-      buildExpandedLectureDescQuestionsList(),
-    ],
+  final portalProvider = GetIt.I<PortalProvider>();
+
+  return ValueListenableBuilder<Lecture>(
+    valueListenable: portalProvider.selectedLecture,
+    builder: (context, lecture, child) {
+      if (lecture == null) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/no_portal.jpeg',
+                height: 100,
+                width: 100,
+              ),
+              Text(
+                  'Select a lecture from left bar or create one from using + button'),
+            ],
+          ),
+        );
+      }
+      return Column(
+        children: [
+          buildExpandedLectureDescHeader(
+            context,
+            lecture.title,
+            lecture.authorName,
+            lecture.slidesCount,
+            lecture.durationMin.toString(),
+          ),
+          buildExpandedLectureDescQuestionsList(),
+        ],
+      );
+    },
   );
 }
 
@@ -380,69 +406,79 @@ Widget buildCourseBar() {
   );
 }
 
-Widget buildCourseLectureTitle(BuildContext context, String title,
-    String subtitle, String date, bool hasNewQuestion,
-    {bool isSelected = true}) {
-  return InkWell(
-    onTap: () {
-      currentFragment.value = HomeScreenFragment.lectureDetail;
-    },
-    child: Container(
-      color:
-          isSelected ? GFColors.PRIMARY.withOpacity(0.08) : Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(date,
-                style: TextStyle(
-                  fontWeight: FontWeight.w300,
-                  fontSize: 10,
-                  color: Color(0xff000000).withOpacity(0.60),
-                )),
-            SizedBox(height: 5),
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Color(0xff000000).withOpacity(0.87),
+Widget buildCourseLectureTitle(BuildContext context, Lecture lecture) {
+  final date = DateTime.fromMillisecondsSinceEpoch(lecture.creationTime);
+  final dateString = DateFormat.MMMd('en_US').format(date);
+  final portalProvider = GetIt.I<PortalProvider>();
+
+  return ValueListenableBuilder<Lecture>(
+      valueListenable: portalProvider.selectedLecture,
+      builder: (context, value, w) {
+        final isSelected =
+            value != null && lecture.lectureId == value.lectureId;
+        return InkWell(
+          onTap: () {
+            currentFragment.value = HomeScreenFragment.lectureDetail;
+            portalProvider.selectedLecture.value = lecture;
+          },
+          child: Container(
+            color: isSelected
+                ? GFColors.PRIMARY.withOpacity(0.08)
+                : Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(dateString,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 10,
+                        color: Color(0xff000000).withOpacity(0.60),
+                      )),
+                  SizedBox(height: 5),
+                  Text(
+                    lecture.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xff000000).withOpacity(0.87),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(lecture.subtitle,
+                      style: TextStyle(
+                        fontFamily: 'SF Pro Display',
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                        color: Color(0xff000000).withOpacity(0.87),
+                      )),
+                  SizedBox(height: 5),
+                  false
+                      ? Container(
+                          height: 22.00,
+                          width: 95.00,
+                          decoration: BoxDecoration(
+                            color: GFColors.PRIMARY.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4.00),
+                          ),
+                          child: Center(
+                            child: Text('NEW QUESTION',
+                                style: TextStyle(
+                                  fontFamily: 'SF Pro Display',
+                                  fontSize: 10,
+                                  color: GFColors.PRIMARY,
+                                )),
+                          ),
+                        )
+                      : Container(),
+                  SizedBox(height: 5),
+                ],
               ),
             ),
-            SizedBox(height: 10),
-            Text(subtitle,
-                style: TextStyle(
-                  fontFamily: 'SF Pro Display',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 14,
-                  color: Color(0xff000000).withOpacity(0.87),
-                )),
-            SizedBox(height: 5),
-            hasNewQuestion
-                ? Container(
-                    height: 22.00,
-                    width: 95.00,
-                    decoration: BoxDecoration(
-                      color: GFColors.PRIMARY.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(4.00),
-                    ),
-                    child: Center(
-                      child: Text('NEW QUESTION',
-                          style: TextStyle(
-                            fontFamily: 'SF Pro Display',
-                            fontSize: 10,
-                            color: GFColors.PRIMARY,
-                          )),
-                    ),
-                  )
-                : Container(),
-            SizedBox(height: 5),
-          ],
-        ),
-      ),
-    ),
-  );
+          ),
+        );
+      });
 }
 
 Widget courseHeaderBar() {
@@ -510,30 +546,43 @@ Widget courseHeaderBar() {
   );
 }
 
-Widget buildCourseLecturesBar(BuildContext context, Portal portal) {
+Widget buildCourseLecturesBar(BuildContext context) {
   return Stack(
     children: [
       Column(
         children: [
           courseHeaderBar(),
           Expanded(
-            child: ListView(
-              children: [
-                buildCourseLectureTitle(context, 'Week 1 - Intro',
-                    'Introduction Lesson', 'Oct 2', true,
-                    isSelected: true),
-                buildCourseLectureTitle(context, 'Week 2 - Basis of UX',
-                    'UX intro, UI vs UX', 'Oct 9', false,
-                    isSelected: false),
-                buildCourseLectureTitle(
-                    context,
-                    'Week 3 - Usability Principles',
-                    'Building usable systems',
-                    'Oct 16',
-                    true,
-                    isSelected: false),
-              ],
-            ),
+            child: Obx(() {
+              final lectureProvider = GetIt.I<LectureProvider>();
+              return ListView.builder(
+                itemBuilder: (c, i) {
+                  final lecture =
+                      lectureProvider.allLecturesOfSelectedPortal[i];
+
+                  return buildCourseLectureTitle(context, lecture);
+                },
+                itemCount: lectureProvider.allLecturesOfSelectedPortal.length,
+              );
+
+              // return ListView(
+              //   children: [
+              //     buildCourseLectureTitle(context, 'Week 1 - Intro',
+              //         'Introduction Lesson', 'Oct 2', true,
+              //         isSelected: true),
+              //     buildCourseLectureTitle(context, 'Week 2 - Basis of UX',
+              //         'UX intro, UI vs UX', 'Oct 9', false,
+              //         isSelected: false),
+              //     buildCourseLectureTitle(
+              //         context,
+              //         'Week 3 - Usability Principles',
+              //         'Building usable systems',
+              //         'Oct 16',
+              //         true,
+              //         isSelected: false),
+              //   ],
+              // );
+            }),
           ),
         ],
       ),
@@ -836,8 +885,9 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Container(width: 250, child: buildCourseBar()),
                 Container(
-                    width: 400,
-                    child: buildCourseLecturesBar(context, Portal())),
+                  width: 400,
+                  child: buildCourseLecturesBar(context),
+                ),
                 Expanded(
                   child: buildExpandedLectureDesc(context),
                 )
