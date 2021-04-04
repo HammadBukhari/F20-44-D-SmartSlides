@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:web/Controller/LectureProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/view/home_screen.dart';
 
@@ -28,9 +29,10 @@ class HomeScreenFragmentChangeNotification extends Notification {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final user =  FirebaseAuth.instance.currentUser;
-  GetIt.I.registerSingleton<LoginProvider>(LoginProvider(user: user));
-  GetIt.I.registerSingleton<PortalProvider>(PortalProvider());
+  final user = FirebaseAuth.instance.currentUser;
+  GetIt.I.registerSingleton(LoginProvider(user: user));
+  GetIt.I.registerSingleton(PortalProvider());
+  GetIt.I.registerSingleton(LectureProvider());
   final userLoggedIn = user != null;
   runApp(MyApp(
     initScreen: userLoggedIn
@@ -39,16 +41,18 @@ Future<void> main() async {
             onRegistrationMode: true,
           ),
   ));
-  // runApp(DevicePreview(
-  //   enabled: true,
-  //   builder: (context) => MyApp(
-  //     initScreen: userLoggedIn
-  //         ? HomeScreen()
-  //         : LoginScreen(
-  //             onRegistrationMode: true,
-  //           ),
-  //   ), // Wrap your app
-  // ));
+  // runApp(
+  //   DevicePreview(
+  //     enabled: true,
+  //     builder: (context) => MyApp(
+  //       initScreen: userLoggedIn
+  //           ? HomeScreen()
+  //           : LoginScreen(
+  //               onRegistrationMode: true,
+  //             ),
+  //     ), // Wrap your app
+  //   ),
+  // );
 }
 
 class MyApp extends StatelessWidget {

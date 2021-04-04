@@ -9,6 +9,7 @@ class Lecture {
   String authorId;
   String authorName;
   int slidesCount;
+
   int durationMin;
 
   Lecture({
@@ -33,21 +34,22 @@ class Lecture {
       'authorName': authorName,
       'slidesCount': slidesCount,
       'durationMin': durationMin,
-      'portalId': portalId
+      'portalId': portalId,
     };
   }
 
   factory Lecture.fromMap(Map<String, dynamic> map) {
     return Lecture(
-        lectureId: map['lectureId'],
-        creationTime: map['creationTime'],
-        title: map['title'],
-        subtitle: map['subtitle'],
-        authorId: map['authorId'],
-        authorName: map['authorName'],
-        slidesCount: map['slidesCount'],
-        durationMin: map['durationMin'],
-        portalId: map['portalId']);
+      lectureId: map['lectureId'],
+      creationTime: map['creationTime'],
+      title: map['title'],
+      subtitle: map['subtitle'],
+      authorId: map['authorId'],
+      authorName: map['authorName'],
+      slidesCount: map['slidesCount'],
+      durationMin: map['durationMin'],
+      portalId: map['portalId'],
+    );
   }
 
   String toJson() => json.encode(toMap());

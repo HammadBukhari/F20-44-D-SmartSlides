@@ -9,6 +9,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/main.dart';
 import 'package:web/model/portal.dart';
+import 'package:web/view/add_lecture_screen.dart';
 import 'package:web/view/mobile_home_screen.dart';
 import 'package:web/view/slide_view_screen.dart';
 
@@ -283,7 +284,7 @@ Widget buildExpandedLectureDescHeader(
         //     GFAvatar(
         //       backgroundImage: AssetImage("assets/dummy_human.png"),
         //     ),
-        //     Text("Dr Amna ")
+        //     Text("Dr  ")
         //   ],
         // ),
         // Row(
@@ -510,22 +511,45 @@ Widget courseHeaderBar() {
 }
 
 Widget buildCourseLecturesBar(BuildContext context, Portal portal) {
-  return Column(
+  return Stack(
     children: [
-      courseHeaderBar(),
-      Expanded(
-        child: ListView(
-          children: [
-            buildCourseLectureTitle(
-                context, 'Week 1 - Intro', 'Introduction Lesson', 'Oct 2', true,
-                isSelected: true),
-            buildCourseLectureTitle(context, 'Week 2 - Basis of UX',
-                'UX intro, UI vs UX', 'Oct 9', false,
-                isSelected: false),
-            buildCourseLectureTitle(context, 'Week 3 - Usability Principles',
-                'Building usable systems', 'Oct 16', true,
-                isSelected: false),
-          ],
+      Column(
+        children: [
+          courseHeaderBar(),
+          Expanded(
+            child: ListView(
+              children: [
+                buildCourseLectureTitle(context, 'Week 1 - Intro',
+                    'Introduction Lesson', 'Oct 2', true,
+                    isSelected: true),
+                buildCourseLectureTitle(context, 'Week 2 - Basis of UX',
+                    'UX intro, UI vs UX', 'Oct 9', false,
+                    isSelected: false),
+                buildCourseLectureTitle(
+                    context,
+                    'Week 3 - Usability Principles',
+                    'Building usable systems',
+                    'Oct 16',
+                    true,
+                    isSelected: false),
+              ],
+            ),
+          ),
+        ],
+      ),
+      Positioned(
+        bottom: 5,
+        right: 5,
+        child: FloatingActionButton(
+          onPressed: () {
+            Get.to(
+              AddLectureScreen(
+                portalId:
+                    GetIt.I<PortalProvider>().selectedPortal.value.portalCode,
+              ),
+            );
+          },
+          child: Icon(Icons.add),
         ),
       ),
     ],

@@ -7,7 +7,7 @@ import 'package:web/model/lecture.dart';
 
 import 'LoginProvider.dart';
 
-class LectureProvider extends GetxController {
+class LectureProvider {
   final loginProvider = GetIt.I<LoginProvider>();
   final colLecture = 'lecture';
 

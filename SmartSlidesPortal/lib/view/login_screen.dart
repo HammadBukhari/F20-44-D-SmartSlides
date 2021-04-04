@@ -27,9 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final nameController = TextEditingController();
 
-  final emailController = TextEditingController();
+  final emailController = TextEditingController(text: 'i170329@nu.edu.pk');
 
-  final passwordController = TextEditingController();
+  final passwordController = TextEditingController(text: 'abc12345');
 
   final formKey = GlobalKey<FormState>();
 
@@ -40,11 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Role selectedRole = Role.teacher;
 
   String get illustrationPath {
-    if (selectedRole == Role.student) {
-      return 'assets/undraw_exams_g4ow.svg';
-    } else {
-      return 'assets/login_illus.jpeg';
-    }
+    return 'assets/login_illus.jpeg';
   }
 
   bool _isLoadingDialogShowing = false;
@@ -71,7 +67,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 content: SizedBox(
                   height: 64,
                   width: 64,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
               );
             },
@@ -89,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget buildAuthForm(BuildContext context) {
     return Container(
-      width: isMobile(context) ? 1.sw : 0.25.sw,
+      width: isMobile(context) ? 1.sw : 0.4.sw,
       child: Center(
         child: ListView(
           shrinkWrap: true,
@@ -133,36 +131,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ResponsiveWrapper(
                     maxWidth: 300,
                     minWidth: 150,
-                    child: kIsWeb
-                        ? Image.asset(
-                            illustrationPath,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.center,
-                          )
-                        : SvgPicture.asset(illustrationPath),
+                    child: Image.asset(
+                      illustrationPath,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                    ),
                   ),
                 ],
               ),
             ),
-            // LiteRollingSwitch(
-            //   value: selectedRole == Role.teacher,
-            //   textOn: 'Teacher',
-            //   textOff: 'Student',
-            //   colorOn: Color(0xff6C63FF),
-            //   colorOff: Colors.blue,
-            //   iconOn: Icons.school_outlined,
-            //   iconOff: Icons.book_online_outlined,
-            //   textSize: 13.0,
-            //   onTap: (bool state) {
-            //     // WidgetsBinding.instance.addPostFrameCallback((_) {
-            //     //   // Add Your Code here.
-            //     // });
-
-            //     setState(() {
-            //       selectedRole = state ? Role.teacher : Role.student;
-            //     });
-            //   },
-            // ),
             SizedBox(height: 30),
             Visibility(
               visible: widget.onRegistrationMode,
@@ -267,13 +244,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            kIsWeb
-                                ? Image.asset(
-                                    illustrationPath,
-                                    fit: BoxFit.cover,
-                                    alignment: Alignment.center,
-                                  )
-                                : SvgPicture.asset(illustrationPath),
+                            Image.asset(
+                              illustrationPath,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(32.0),
                               child: Column(
