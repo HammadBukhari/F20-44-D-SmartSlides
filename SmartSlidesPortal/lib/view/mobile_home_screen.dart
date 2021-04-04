@@ -32,7 +32,7 @@ class _MobileHomeScreenState extends State<MobileHomeScreen> {
         index: selectedIndex,
         children: [
           buildCourseBar(),
-          buildCourseLecturesBar(context, Portal()),
+          buildCourseLecturesBar(context),
           buildExpandedLectureDesc(context),
         ],
       ),
