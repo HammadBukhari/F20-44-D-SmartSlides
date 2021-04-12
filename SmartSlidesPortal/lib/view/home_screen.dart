@@ -7,14 +7,19 @@ import 'package:getwidget/colors/gf_color.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web/Controller/LectureProvider.dart';
+import 'package:web/Controller/LoginProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/main.dart';
+import 'package:web/model/Response.dart' as AppResponse;
 import 'package:web/model/lecture.dart';
 import 'package:web/model/portal.dart';
+import 'package:web/model/question.dart';
 import 'package:web/view/add_lecture_screen.dart';
 import 'package:web/view/mobile_home_screen.dart';
 import 'package:web/view/slide_view_screen.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../helper.dart';
 
@@ -83,59 +88,234 @@ Widget buildUserProfileBadge(String name, String rollNo) {
   );
 }
 
-Widget buildQuestionAndItsResponses() {
-  return Column(
-    children: [
-      Row(
-        children: [
-          SizedBox(width: 10),
-          GFAvatar(
-            backgroundImage: AssetImage('assets/dummy_human.png'),
-            size: 28,
+Widget buildResponseRow(AppResponse.Response r) {
+  return ListTile(
+    subtitle: Text(
+      r.response,
+      style: TextStyle(
+        color: Colors.black87,
+        fontSize: 16,
+      ),
+    ),
+    title: Row(
+      children: [
+        Text(
+          r.response,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          width: 15,
+        ),
+        Text(
+          timeago.format(
+              DateTime.fromMillisecondsSinceEpoch(r.responseCreationTime)),
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      ],
+    ),
+    minLeadingWidth: 20,
+    leading: GFAvatar(
+      backgroundImage: AssetImage('assets/dummy_human.png'),
+      size: 20,
+    ),
+  );
+}
+
+Widget buildQuestionRow(Question q) {
+  return ListTile(
+    subtitle: Text(
+      q.question,
+      style: TextStyle(
+        color: Colors.black87,
+        fontSize: 16,
+      ),
+    ),
+    title: Row(
+      children: [
+        Text(
+          q.qRaiserName,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          width: 15,
+        ),
+        Text(
+          timeago.format(
+              DateTime.fromMillisecondsSinceEpoch(q.questionRaisingTime)),
+          style: TextStyle(color: Colors.grey, fontSize: 14),
+        ),
+      ],
+    ),
+    leading: GFAvatar(
+      backgroundImage: AssetImage('assets/dummy_human.png'),
+    ),
+  );
+}
+
+Widget buildQuestionAndItsResponses(Question question) {
+  return Container(
+    child: Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        buildQuestionRow(question),
+        IntrinsicHeight(
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0, right: 16),
+                child: Container(
+                  width: 2,
+                  color: Colors.grey,
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:
+                      question.answers.map((e) => buildResponseRow(e)).toList()
+                        ..add(buildResponseTextField(
+                            question.lectureId, question.questionId)),
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: AutoSizeText(
-              'What exactly cover the after part of User Experience?',
-              maxLines: 3,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget buildQuestionTextField(String lectureId) {
+  final lectureProvider = GetIt.I<LectureProvider>();
+  final textEditingController = TextEditingController();
+  return Padding(
+    padding: const EdgeInsets.only(top: 6.0, left: 16),
+    child: Row(
+      children: [
+        GFAvatar(
+          backgroundImage: AssetImage('assets/dummy_human.png'),
+          size: 32,
+        ),
+        SizedBox(width: 5),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              // left: 32.0,
+              top: 8,
+              // bottom: 8,
+            ),
+            child: TextFormField(
+              controller: textEditingController,
+              decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.all(0.0),
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                      // width: 0.0 produces a thin "hairline" border
+                      borderRadius: BorderRadius.all(Radius.circular(90.0)),
+                      borderSide: BorderSide(color: Colors.white24)
+                      //borderSide: const BorderSide(),
+                      ),
+                  hintStyle: TextStyle(
+                      color: Colors.black26, fontFamily: 'WorkSansLight'),
+                  hintText: 'Ask a Question'),
             ),
           ),
-        ],
-      ),
-      Padding(
-        padding: const EdgeInsets.only(
-          left: 32.0,
-          top: 8,
-          bottom: 8,
-          right: 16,
         ),
-        child: TextFormField(
-          decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(0.0),
-              prefixIcon: Icon(Icons.email_outlined),
-              border: OutlineInputBorder(
-                  // width: 0.0 produces a thin "hairline" border
-                  borderRadius: BorderRadius.all(Radius.circular(90.0)),
-                  borderSide: BorderSide(color: Colors.white24)
-                  //borderSide: const BorderSide(),
-                  ),
-              hintStyle:
-                  TextStyle(color: Colors.black26, fontFamily: 'WorkSansLight'),
-              hintText: 'Be the first to answer this question'),
-        ),
+        Center(
+            child: IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () async {
+                  final appUser = GetIt.I<LoginProvider>().getLoggedInUser();
+                  await lectureProvider.addQuestionToLecture(
+                      lectureId,
+                      Question(
+                        answers: [],
+                        lectureId: lectureId,
+                        qRaiserId: appUser.uid,
+                        qRaiserName: appUser.name,
+                        question: textEditingController.text,
+                        questionId: Uuid().v1(),
+                        questionRaisingTime:
+                            DateTime.now().millisecondsSinceEpoch,
+                      ));
+                  textEditingController.clear();
+                })),
+      ],
+    ),
+  );
+}
+
+Widget buildResponseTextField(String lectureId, String questionId) {
+  var isSomethingWritten = false.obs;
+  final responseTEC = TextEditingController();
+  return Row(
+    children: [
+      Expanded(
+        child: Padding(
+            padding: const EdgeInsets.only(
+              // left: 32.0,
+              top: 8,
+              bottom: 8,
+              right: 16,
+            ),
+            child: TextFormField(
+              controller: responseTEC,
+              onChanged: (s) {
+                if (s.isNotEmpty) {
+                  isSomethingWritten.value = true;
+                } else {
+                  isSomethingWritten.value = false;
+                }
+              },
+              decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.all(0.0),
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                      // width: 0.0 produces a thin "hairline" border
+                      borderRadius: BorderRadius.all(Radius.circular(90.0)),
+                      borderSide: BorderSide(color: Colors.white24)
+                      //borderSide: const BorderSide(),
+                      ),
+                  hintStyle: TextStyle(
+                      color: Colors.black26, fontFamily: 'WorkSansLight'),
+                  hintText: 'Answer this question'),
+            )),
       ),
+      Obx(() => Visibility(
+            visible: isSomethingWritten.value,
+            child: IconButton(
+              icon: Icon(Icons.send),
+              onPressed: () async {
+                if (responseTEC.text.isNotEmpty) {
+                  await GetIt.I<LectureProvider>().addResponseToQuestion(
+                      lectureId, questionId, responseTEC.text);
+                  responseTEC.clear();
+                }
+              },
+            ),
+          )),
     ],
   );
 }
 
-Widget buildExpandedLectureDescQuestionsList() {
-  return ListView(
-    shrinkWrap: true,
-    children: [
-      buildQuestionAndItsResponses(),
-      buildQuestionAndItsResponses(),
-    ],
-  );
+Widget buildExpandedLectureDescQuestionsList(String lectureId) {
+  final lectureProvider = GetIt.I<LectureProvider>();
+  return StreamBuilder<List<Question>>(
+      stream: lectureProvider.getAllQuestionOfLecture(lectureId),
+      builder: (context, snapshot) {
+        final questions = snapshot.data ?? [];
+
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: questions.length + 1,
+          itemBuilder: (context, index) {
+            if (index == questions.length) {
+              return buildQuestionTextField(lectureId);
+            }
+            return buildQuestionAndItsResponses(questions[index]);
+          },
+        );
+      });
 }
 
 Widget buildExpandedLectureDescHeader(
@@ -383,7 +563,8 @@ Widget buildExpandedLectureDesc(BuildContext context) {
             lecture.slidesCount,
             lecture.durationMin.toString(),
           ),
-          buildExpandedLectureDescQuestionsList(),
+          Expanded(
+              child: buildExpandedLectureDescQuestionsList(lecture.lectureId)),
         ],
       );
     },
