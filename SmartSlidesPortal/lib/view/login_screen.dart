@@ -257,10 +257,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Text(
                                     'Welcome to\nSmartSlides'.toUpperCase(),
                                     style: TextStyle(
+                                      shadows: <Shadow>[
+                                        Shadow(
+                                          offset: Offset(-4.0, 7.0),
+                                          blurRadius: 7.0,
+                                          color: Color.fromARGB(255, 0, 0, 0),
+                                        ),
+                                      ],
                                       color: Colors.white,
-                                      fontSize: 35,
+                                      fontSize: 40,
                                       letterSpacing: 3,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w900,
+                                      //backgroundColor: Colors.white60
                                     ),
                                   ),
                                   Expanded(
@@ -270,9 +278,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     'Join to get SmartSlides for your class'
                                         .toUpperCase(),
                                     style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
+                                      color: Colors.black54,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.w200,
+                                      //backgroundColor: Colors.white30
                                     ),
                                   ),
                                 ],
