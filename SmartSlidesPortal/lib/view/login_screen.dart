@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Role selectedRole = Role.teacher;
 
   String get illustrationPath {
-    return 'assets/login_illus.jpeg';
+    return 'assets/login_illus_trans.png';
   }
 
   bool _isLoadingDialogShowing = false;
