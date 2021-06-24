@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:getwidget/colors/gf_color.dart';
 import 'package:web/Controller/LectureProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/view/home_screen.dart';
@@ -65,11 +67,17 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       allowFontScaling: false,
       builder: () {
-        return GetMaterialApp(
-          home: SafeArea(
-            child: initScreen,
-          ), //SlideViewScreen(),
-          debugShowCheckedModeBanner: false,
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.dark,
+          child: Container(
+            color: Colors.white, //GFColors.PRIMARY,
+            child: GetMaterialApp(
+              home: SafeArea(
+                child: initScreen,
+              ), //SlideViewScreen(),
+              debugShowCheckedModeBanner: false,
+            ),
+          ),
         );
       },
     );

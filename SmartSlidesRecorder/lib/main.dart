@@ -2,10 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 // import 'package:camera/camera.dart';
-import 'package:camera/camera.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_ffmpeg/media_information.dart';
 import 'package:get/get.dart';
@@ -14,49 +12,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'dart:math' as math;
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:recording/video_processing_screen.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as vt;
 import 'package:path/path.dart' as path;
 
-List<CameraDescription> cameras = [];
-
-List<double> getXYCoordinatesFromMLOutput(
-    Float64List mlOutput, int orgImgHeight, int orgImgWidth) {
-  // first check if all zero which means object not detected
-  if (mlOutput.reduce((value, element) => value + element) == 0.0) {
-    return [0, 0, 0, 0];
-  }
-  // orgImgHeight = 2560;
-  // orgImgWidth = 1440;
-  final inputSize = 416;
-  final resizeRatio =
-      math.min(inputSize / orgImgHeight, inputSize / orgImgHeight);
-
-  var xmin = mlOutput[0] - mlOutput[2] * 0.5;
-  var ymin = mlOutput[1] - mlOutput[3] * 0.5;
-  var xmax = mlOutput[0] + mlOutput[2] * 0.5;
-  var ymax = mlOutput[1] + mlOutput[3] * 0.5;
-
-  final dw = (inputSize - resizeRatio * orgImgHeight) / 2;
-  final dh = (inputSize - resizeRatio * orgImgHeight) / 2;
-
-  xmin = 1.0 * (xmin - dw) / resizeRatio;
-  xmax = 1.0 * (xmax - dw) / resizeRatio;
-  ymin = 1.0 * (ymin - dh) / resizeRatio;
-  ymax = 1.0 * (ymax - dh) / resizeRatio;
-  // return [xmin / 3.5, ymin / 3.5, xmax / 3.5, ymax / 3.5];
-  return [xmin, ymin, xmax, ymax];
-}
+import 'ML.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await SystemChrome.setEnabledSystemUIOverlays([]);
-  // await SystemChrome.setPreferredOrientations([
-  //   DeviceOrientation.landscapeLeft,
-  // ]);
-  // cameras = await availableCameras();
   runApp(MyApp());
 }
 
@@ -67,95 +32,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
-  }
-}
-
-preProcessVideo(String videoPath) async {
-  var progress = 0.0.obs;
-  Get.defaultDialog(
-    title: "Processing Video",
-    content: Obx(() => Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: LinearProgressIndicator(
-            value: progress.value,
-          ),
-        )),
-  );
-
-  List<double> projectorCoordinates = [];
-  List<double> whiteboardCoordinates = [];
-  List<File> allFiles = [];
-  Directory tempDir = await getTemporaryDirectory();
-  String tempPath = tempDir.path;
-  final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
-  MediaInformation mediaInformation =
-      await flutterFFprobe.getMediaInformation(videoPath);
-  Map<dynamic, dynamic> mp = mediaInformation.getMediaProperties();
-  final duration = (double.parse(mp['duration'])).floor();
-  for (int i = 0; i < 30; i += 3) {
-    final uint8list = await vt.VideoThumbnail.thumbnailData(
-      video: videoPath,
-      imageFormat: vt.ImageFormat.JPEG,
-      timeMs: i * 1000,
-      quality: 100,
-    );
-    final image = img.decodeImage(uint8list);
-    final height = image.height;
-    final width = image.width;
-
-    img.Image resized = img.copyResize(image, height: 416, width: 416);
-    // print(resized.getBytes(format: img.Format.bgr).first);
-    final resizedBytes = resized.getBytes(format: img.Format.bgr);
-    final normalized = resizedBytes.map((e) => e / 255).toList();
-
-    final mlOutput = await platformChannel(Float64List.fromList(normalized));
-
-    Float64List projectOutput = mlOutput.sublist(0, 6);
-    Float64List whiteboardOutput = mlOutput.sublist(6, 12);
-    Float64List personOutput = mlOutput.sublist(12, 18);
-    List<double> personCorr =
-        getXYCoordinatesFromMLOutput(personOutput, height, width);
-    if (isObjectDetected(personCorr)) continue;
-
-    List<double> projectCorr =
-        getXYCoordinatesFromMLOutput(projectOutput, height, width);
-    List<double> whiteboardCorr =
-        getXYCoordinatesFromMLOutput(whiteboardOutput, height, width);
-
-    projectorCoordinates = projectCorr;
-    whiteboardCoordinates = whiteboardCorr;
-    // x1 0
-    // y1 1
-    // x2 2
-    // y2 3
-    final croppedImage = img.copyCrop(
-        image,
-        whiteboardCorr[0].toInt(),
-        whiteboardCorr[1].toInt(),
-        whiteboardCorr[2].toInt() - whiteboardCorr[0].toInt(),
-        whiteboardCorr[3].toInt() - whiteboardCorr[1].toInt());
-
-    String tempFilePath = path.join(tempPath, "$i.png");
-    final fileToWrite = File(tempFilePath)
-      ..writeAsBytesSync(img.encodePng(croppedImage));
-    allFiles.add(fileToWrite);
-    print("$i done");
-    progress.value = (i / duration);
-  }
-  final corFilePath = path.join(tempPath, "coordinates.txt");
-  final corFile = File(corFilePath)
-    ..writeAsString("$whiteboardCoordinates\n$projectorCoordinates");
-  allFiles.add(corFile);
-  final downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
-
-  final zipFile = File(path.join(downloadsDirectory.path, "SmartSlides.smrt"));
-  try {
-    await ZipFile.createFromFiles(
-        sourceDir: tempDir, files: allFiles, zipFile: zipFile);
-    print("DONE");
-    Get.back();
-  } catch (e) {
-    print(e);
   }
 }
 
@@ -185,96 +61,79 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
               onPressed: () async {
                 if (await Permission.storage.request().isGranted) {
-                  final picker = ImagePicker();
-                  final pickedFile = await picker.getVideo(
-                    source: ImageSource.gallery,
-                  );
-
-                  preProcessVideo(pickedFile.path);
-
-                  // final uint8list = await vt.VideoThumbnail.thumbnailData(
-                  //   video: pickedFile.path,
-                  //   imageFormat: vt.ImageFormat.JPEG,
-
-                  //   maxWidth:
-                  //       168, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
-                  //   quality: 100,
-                  // );
-                  // final result = await ImageGallerySaver.saveImage(uint8list);
-
-                  // print(uint8list);
+                  Get.to(VideoProcessingScreen());
                 }
               },
-              child: Text("Video")),
-          ElevatedButton(
-            onPressed: () async {
-              final picker = ImagePicker();
-              final pickedFile = await picker.getImage(
-                source: ImageSource.gallery,
-              );
-              final startTime = DateTime.now();
-              final image =
-                  img.decodeImage(File(pickedFile.path).readAsBytesSync());
-              final height = image.height;
-              final width = image.width;
+              child: Text("Create SmartSlides")),
+          // ElevatedButton(
+          //   onPressed: () async {
+          //     final picker = ImagePicker();
+          //     final pickedFile = await picker.getImage(
+          //       source: ImageSource.gallery,
+          //     );
+          //     final startTime = DateTime.now();
+          //     final image =
+          //         img.decodeImage(File(pickedFile.path).readAsBytesSync());
+          //     final height = image.height;
+          //     final width = image.width;
 
-              img.Image resized =
-                  img.copyResize(image, height: 416, width: 416);
-              // print(resized.getBytes(format: img.Format.bgr).first);
-              final resizedBytes = resized.getBytes(format: img.Format.bgr);
-              final normalized = resizedBytes.map((e) => e / 255).toList();
+          //     img.Image resized =
+          //         img.copyResize(image, height: 416, width: 416);
+          //     // print(resized.getBytes(format: img.Format.bgr).first);
+          //     final resizedBytes = resized.getBytes(format: img.Format.bgr);
+          //     final normalized = resizedBytes.map((e) => e / 255).toList();
 
-              final mlOutput =
-                  await platformChannel(Float64List.fromList(normalized));
+          //     final mlOutput =
+          //         await platformChannel(Float64List.fromList(normalized));
 
-              Float64List projectOutput = mlOutput.sublist(0, 6);
-              Float64List whiteboardOutput = mlOutput.sublist(6, 12);
-              Float64List personOutput = mlOutput.sublist(12, 18);
+          //     Float64List projectOutput = mlOutput.sublist(0, 6);
+          //     Float64List whiteboardOutput = mlOutput.sublist(6, 12);
+          //     Float64List personOutput = mlOutput.sublist(12, 18);
 
-              List<double> projectCorr =
-                  getXYCoordinatesFromMLOutput(projectOutput, height, width);
-              List<double> whiteboardCorr =
-                  getXYCoordinatesFromMLOutput(whiteboardOutput, height, width);
-              List<double> personCorr =
-                  getXYCoordinatesFromMLOutput(personOutput, height, width);
-              // x1 0
-              // y1 1
-              // x2 2
-              // y2 3
+          //     List<double> projectCorr =
+          //         getXYCoordinatesFromMLOutput(projectOutput, height, width);
+          //     List<double> whiteboardCorr =
+          //         getXYCoordinatesFromMLOutput(whiteboardOutput, height, width);
+          //     List<double> personCorr =
+          //         getXYCoordinatesFromMLOutput(personOutput, height, width);
+          //     // x1 0
+          //     // y1 1
+          //     // x2 2
+          //     // y2 3
 
-              final croppedImage = img.copyCrop(
-                  image,
-                  whiteboardCorr[0].toInt(),
-                  whiteboardCorr[1].toInt(),
-                  whiteboardCorr[2].toInt() - whiteboardCorr[0].toInt(),
-                  whiteboardCorr[3].toInt() - whiteboardCorr[1].toInt());
+          //     final croppedImage = img.copyCrop(
+          //         image,
+          //         personCorr[0].toInt(),
+          //         personCorr[1].toInt(),
+          //         personCorr[2].toInt() - personCorr[0].toInt(),
+          //         personCorr[3].toInt() - personCorr[1].toInt());
 
-              final downloadsDirectory =
-                  await DownloadsPathProvider.downloadsDirectory;
-              String tempPath = downloadsDirectory.path;
-              String tempFilePath = path.join(tempPath, "temp.png");
-              final fileToUpload = File(tempFilePath)
-                ..writeAsBytesSync(img.encodePng(croppedImage));
-              print("done");
+          //     final downloadsDirectory =
+          //         await DownloadsPathProvider.downloadsDirectory;
+          //     String tempPath = downloadsDirectory.path;
+          //     String tempFilePath = path.join(tempPath, "temp.png");
+          //     final fileToUpload = File(tempFilePath)
+          //       ..writeAsBytesSync(img.encodePng(croppedImage));
+          //     print("done");
 
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => My2ndApp(imageFile, {
-              //       'Whiteboard': whiteboardCorr,
-              //       'Person': personCorr,
-              //       'Projection': projectCorr,
-              //     }),
-              //   ),
-              // );
-            },
-            child: Text(
-              "Annotate Image",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
+          //     // Navigator.push(
+          //     //   context,
+          //     //   MaterialPageRoute(
+          //     //     builder: (context) => My2ndApp(imageFile, {
+          //     //       'Whiteboard': whiteboardCorr,
+          //     //       'Person': personCorr,
+          //     //       'Projection': projectCorr,
+          //     //     }),
+          //     //   ),
+          //     // );
+          //   },
+          //   child: Text(
+          //     "Annotate Image",
+          //     style: TextStyle(
+          //       color: Colors.white,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -407,17 +266,7 @@ class My2ndApp extends StatelessWidget {
   }
 }
 
-Future<Float64List> platformChannel(Float64List imageData) async {
-  const platform = const MethodChannel('SmartSlidesRecorder/YOLO');
-  try {
-    final result =
-        await platform.invokeMethod('getWhiteboardPredictions', imageData);
-    print(result);
-    return result;
-  } on PlatformException catch (e) {
-    print(e);
-  }
-}
+
 
 // // class MyApp extends StatelessWidget {
 // //   @override

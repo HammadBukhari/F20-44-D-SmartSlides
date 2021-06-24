@@ -12,10 +12,13 @@ import 'LoginProvider.dart';
 class PortalProvider {
   final loginProvider = GetIt.I<LoginProvider>();
   List<Portal> portals = [];
+
   ValueNotifier<bool> newPortalCreated = ValueNotifier(false);
   ValueNotifier<Portal> selectedPortal = ValueNotifier(null);
   ValueNotifier<Lecture> selectedLecture = ValueNotifier(null);
   final portalCol = 'portal';
+
+  PortalProvider() {}
   String _generateRandomString(int len) {
     var r = Random();
     const _chars =
@@ -86,5 +89,6 @@ class PortalProvider {
       );
       portals.add(portal);
     }
+    selectedPortal.value ??= portals.first;
   }
 }

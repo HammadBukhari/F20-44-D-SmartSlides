@@ -89,7 +89,7 @@ class LectureProvider extends GetxController {
         .toList();
   }
 
-  Future<bool> createLectureInPortal(
+  Future<String> createLectureInPortal(
     String portalId,
     String title,
     String description,
@@ -112,10 +112,10 @@ class LectureProvider extends GetxController {
           .doc(toUpload.lectureId)
           .set(toUpload.toMap());
       updateCurrentLectureList();
-      return true;
+      return toUpload.lectureId;
     } catch (e) {
       print(e);
-      return false;
+      return '';
     }
   }
 

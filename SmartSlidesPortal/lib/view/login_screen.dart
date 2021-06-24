@@ -27,9 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final nameController = TextEditingController();
 
-  final emailController = TextEditingController(text: 'i170329@nu.edu.pk');
+  final emailController = TextEditingController();
 
-  final passwordController = TextEditingController(text: 'abc12345');
+  final passwordController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 

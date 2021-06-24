@@ -1,4 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:async/async.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
@@ -6,23 +11,35 @@ import 'package:get/route_manager.dart';
 // import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:getwidget/colors/gf_color.dart';
-import 'package:native_pdf_view/native_pdf_view.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:uuid/uuid.dart';
+
 import '../Controller/LectureProvider.dart';
-import 'package:path_provider/path_provider.dart';
 import '../Controller/LoginProvider.dart';
 import '../Controller/PortalProvider.dart';
 import '../helper.dart';
 import '../model/lecture.dart';
 import 'home_screen.dart';
-import 'dart:ui' as ui;
-import 'package:path/path.dart' as path;
-import 'package:dio/dio.dart';
 
-class AddLectureScreen extends StatelessWidget {
+class AddLectureScreen extends StatefulWidget {
   final String portalId;
+
+  AddLectureScreen({Key key, @required this.portalId}) : super(key: key);
+
+  @override
+  _AddLectureScreenState createState() => _AddLectureScreenState();
+}
+
+class _AddLectureScreenState extends State<AddLectureScreen> {
   final provider = GetIt.I<PortalProvider>();
+
   final borderStyle = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(90.0)),
       borderSide: BorderSide(color: Colors.white24));
@@ -33,7 +50,7 @@ class AddLectureScreen extends StatelessWidget {
 
   final formKey = GlobalKey<FormState>();
 
-  AddLectureScreen({Key key, @required this.portalId}) : super(key: key);
+  PlatformFile smartSlides;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +62,10 @@ class AddLectureScreen extends StatelessWidget {
             onTap: () async {
               if (formKey.currentState.validate()) {
                 HelperWidgets.showLoadingDialog();
-                await GetIt.instance<LectureProvider>().createLectureInPortal(
-                    portalId, titleController.text, descController.text);
+                final lectureId = await GetIt.instance<LectureProvider>()
+                    .createLectureInPortal(widget.portalId,
+                        titleController.text, descController.text);
+                await uploadSmartSlides(lectureId);
                 Get.back();
                 await Get.offAll(HomeScreen());
                 HelperWidgets.showAppSnackbar('Success', 'Lecture Added');
@@ -108,33 +127,26 @@ class AddLectureScreen extends StatelessWidget {
                       ),
                       hintText: 'Lecture Description'),
                 ),
-                ElevatedButton(
-                    onPressed: () async {
-                      var result = await FilePicker.platform.pickFiles();
-                      if (result != null) {
-                        Response response;
-                        var dio = Dio(BaseOptions(baseUrl: ''));
-                        var formData = FormData.fromMap({
-                          'name': 'wendux',
-                          'age': 25,
-                          'file': await MultipartFile.fromFile('./text.txt',
-                              filename: 'upload.txt'),
-                          'files': [
-                            await MultipartFile.fromFile('./text1.txt',
-                                filename: 'text1.txt'),
-                            await MultipartFile.fromFile('./text2.txt',
-                                filename: 'text2.txt'),
-                          ]
-                        });
-
-                        response = await dio.post('/info', data: formData);
-                      } else {
-                        // User canceled the picker
-                      }
-
-                      // PdfDocument.openAsset('assets/sample.pdf');
-                    },
-                    child: Text('test')),
+                SizedBox(
+                  height: 15,
+                ),
+                Builder(builder: (context) {
+                  if (smartSlides != null) {
+                    return Icon(Icons.check);
+                  }
+                  return ElevatedButton(
+                      onPressed: () async {
+                        var result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['zip'],
+                        );
+                        if (result != null) {
+                          smartSlides = result.files.first;
+                          setState(() {});
+                        }
+                      },
+                      child: Text('Select SmartSlides'));
+                }),
               ],
             ),
           ),
@@ -142,21 +154,22 @@ class AddLectureScreen extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> uploadSmartSlides(String lectureId) async {
+    final url =
+        'http://e4eac98bbec2.ngrok.io/process_slides/?lectureId=$lectureId';
+    final res = await http.post(
+      Uri.parse(url),
+    );
+
+    // var request = http.MultipartRequest('POST', Uri.parse(url));
+    // request.fields.putIfAbsent('lectureId', () => lectureId);
+    // request.files.add(
+    //   http.MultipartFile.fromBytes('smartSlides', smartSlides.bytes,
+    //       filename: smartSlides.name,
+    //       contentType: MediaType.parse('application/zip')),
+    // );
+    // var res = await request.send();
+    print(res.statusCode);
+  }
 }
-
-
-
-                        // print(result.files.single.path);
-                        // final fi = await PdfDocument.openFile(
-                        //     result.files.single.path);
-                        // final page = await fi.getPage(1);
-                        // final pdfImage = await page.render(
-                        //     width: page.width, height: page.height);
-                        // var buffer = pdfImage.bytes;
-                        // Directory tempDir = await getTemporaryDirectory();
-                        // String tempPath = tempDir.path;
-                        // String tempFilePath = path.join(tempPath, "temp.png");
-                        // final fileToUpload = File(tempFilePath)
-                        //   ..writeAsBytesSync(buffer);
-
-                        // print(tempFilePath);

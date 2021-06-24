@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
@@ -100,7 +102,7 @@ Widget buildResponseRow(AppResponse.Response r) {
     title: Row(
       children: [
         Text(
-          r.response,
+          r.responserName,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(
@@ -134,6 +136,13 @@ Widget buildQuestionRow(Question q) {
       children: [
         Text(
           q.qRaiserName,
+          // [
+          //   'Salman Mustafa',
+          //   'Ali Hamza,',
+          //   'Waqar Shakeel',
+          //   'Khubaib Ali',
+          //   "Awais",
+          // ][Random().nextInt(5)], //q.qRaiserName,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(
@@ -170,6 +179,7 @@ Widget buildQuestionAndItsResponses(Question question) {
               ),
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children:
                       question.answers.map((e) => buildResponseRow(e)).toList()
@@ -248,53 +258,59 @@ Widget buildQuestionTextField(String lectureId) {
 Widget buildResponseTextField(String lectureId, String questionId) {
   var isSomethingWritten = false.obs;
   final responseTEC = TextEditingController();
-  return Row(
-    children: [
-      Expanded(
-        child: Padding(
-            padding: const EdgeInsets.only(
-              // left: 32.0,
-              top: 8,
-              bottom: 8,
-              right: 16,
+  return Expanded(
+    child: Container(
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+                padding: const EdgeInsets.only(
+                  // left: 32.0,
+                  top: 8,
+                  bottom: 8,
+                  right: 16,
+                ),
+                child: TextFormField(
+                  controller: responseTEC,
+                  onChanged: (s) {
+                    if (s.isNotEmpty) {
+                      isSomethingWritten.value = true;
+                    } else {
+                      isSomethingWritten.value = false;
+                    }
+                  },
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.all(0.0),
+                      prefixIcon: Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                          // width: 0.0 produces a thin "hairline" border
+                          borderRadius: BorderRadius.all(Radius.circular(90.0)),
+                          borderSide: BorderSide(color: Colors.white24)
+                          //borderSide: const BorderSide(),
+                          ),
+                      hintStyle: TextStyle(
+                          color: Colors.black26, fontFamily: 'WorkSansLight'),
+                      hintText: 'Answer this question'),
+                )),
+          ),
+          Obx(
+            () => Visibility(
+              visible: isSomethingWritten.value,
+              child: IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () async {
+                  if (responseTEC.text.isNotEmpty) {
+                    await GetIt.I<LectureProvider>().addResponseToQuestion(
+                        lectureId, questionId, responseTEC.text);
+                    responseTEC.clear();
+                  }
+                },
+              ),
             ),
-            child: TextFormField(
-              controller: responseTEC,
-              onChanged: (s) {
-                if (s.isNotEmpty) {
-                  isSomethingWritten.value = true;
-                } else {
-                  isSomethingWritten.value = false;
-                }
-              },
-              decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(0.0),
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                      // width: 0.0 produces a thin "hairline" border
-                      borderRadius: BorderRadius.all(Radius.circular(90.0)),
-                      borderSide: BorderSide(color: Colors.white24)
-                      //borderSide: const BorderSide(),
-                      ),
-                  hintStyle: TextStyle(
-                      color: Colors.black26, fontFamily: 'WorkSansLight'),
-                  hintText: 'Answer this question'),
-            )),
+          ),
+        ],
       ),
-      Obx(() => Visibility(
-            visible: isSomethingWritten.value,
-            child: IconButton(
-              icon: Icon(Icons.send),
-              onPressed: () async {
-                if (responseTEC.text.isNotEmpty) {
-                  await GetIt.I<LectureProvider>().addResponseToQuestion(
-                      lectureId, questionId, responseTEC.text);
-                  responseTEC.clear();
-                }
-              },
-            ),
-          )),
-    ],
+    ),
   );
 }
 
@@ -340,11 +356,14 @@ Widget buildExpandedLectureDescHeader(
         !isMobile(context)
             ? Row(
                 children: [
-                  Text(
+                  AutoSizeText(
                     title,
+                    maxLines: 1,
+                    maxFontSize: 32,
+                    minFontSize: 25,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 32,
+                      // fontSize: 32,
                       color: Color(0xff000000).withOpacity(0.87),
                     ),
                   ),
@@ -353,7 +372,12 @@ Widget buildExpandedLectureDescHeader(
                   ),
                   InkWell(
                     onTap: () {
-                      Get.to(SlideViewScreen());
+                      final lectureProvider = GetIt.I<LectureProvider>();
+
+                      Get.to(SlideViewScreen(
+                        smartSlides: lectureProvider
+                            .portalProvider.selectedLecture.value.smartSlides,
+                      ));
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -369,7 +393,7 @@ Widget buildExpandedLectureDescHeader(
                             'Open SmartSlides',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 17,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -390,7 +414,12 @@ Widget buildExpandedLectureDescHeader(
                   ),
                   InkWell(
                     onTap: () {
-                      Get.to(SlideViewScreen());
+                      final lectureProvider = GetIt.I<LectureProvider>();
+
+                      Get.to(SlideViewScreen(
+                        smartSlides: lectureProvider
+                            .portalProvider.selectedLecture.value.smartSlides,
+                      ));
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -544,7 +573,7 @@ Widget buildExpandedLectureDesc(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
-                'assets/no_portal.jpeg',
+                'assets/no_portal.png',
                 height: 100,
                 width: 100,
               ),
@@ -768,8 +797,8 @@ Widget buildCourseLecturesBar(BuildContext context) {
         ],
       ),
       Positioned(
-        bottom: 5,
-        right: 5,
+        bottom: 20,
+        right: 20,
         child: FloatingActionButton(
           onPressed: () {
             Get.to(
@@ -1014,69 +1043,89 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('SmartSlides'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              buildJoinOrCreateDialog(context);
-            },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Visibility(
+            visible: isMobile(context),
+            child: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                if (currentFragment.value == HomeScreenFragment.lectureList) {
+                  currentFragment.value = HomeScreenFragment.coursesList;
+                } else if (currentFragment.value ==
+                    HomeScreenFragment.lectureDetail) {
+                  currentFragment.value = HomeScreenFragment.lectureList;
+                } else if (currentFragment.value ==
+                    HomeScreenFragment.coursesList) {
+                  Get.back();
+                }
+              },
+            ),
           ),
-        ],
-        backgroundColor: GFColors.PRIMARY,
-        centerTitle: true,
-      ),
-      body: ValueListenableBuilder(
-        valueListenable: provider.newPortalCreated,
-        builder: (context, value, widget) {
-          if (!isLoaded) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (isLoaded && provider.portals.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                        width: isMobile(context) ? 150 : 250,
-                        child: AspectRatio(
-                            aspectRatio: 1,
-                            child: drawIllustration('assets/no_portal.jpeg'))),
-                    SizedBox(height: 30),
-                    Text(
-                      'You are not a part of any portal\n Create one or join through code using "+" button above',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
+          title: Text('SmartSlides'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                buildJoinOrCreateDialog(context);
+              },
+            ),
+          ],
+          backgroundColor: GFColors.PRIMARY,
+          centerTitle: true,
+        ),
+        body: ValueListenableBuilder(
+          valueListenable: provider.newPortalCreated,
+          builder: (context, value, widget) {
+            if (!isLoaded) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (isLoaded && provider.portals.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                          width: isMobile(context) ? 150 : 250,
+                          child: AspectRatio(
+                              aspectRatio: 1,
+                              child:
+                                  drawIllustration('assets/no_portal.png'))),
+                      SizedBox(height: 30),
+                      Text(
+                        'You are not a part of any portal\n Create one or join through code using "+" button above',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          if (!isMobile(context)) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(width: 250, child: buildCourseBar()),
-                Container(
-                  width: 400,
-                  child: buildCourseLecturesBar(context),
-                ),
-                Expanded(
-                  child: buildExpandedLectureDesc(context),
-                )
-              ],
-            );
-          }
-          return MobileHomeScreen();
-        },
+            if (!isMobile(context)) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 250, child: buildCourseBar()),
+                  Container(
+                    width: 400,
+                    child: buildCourseLecturesBar(context),
+                  ),
+                  Expanded(
+                    child: buildExpandedLectureDesc(context),
+                  )
+                ],
+              );
+            }
+            return MobileHomeScreen();
+          },
+        ),
       ),
     );
   }

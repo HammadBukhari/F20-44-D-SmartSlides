@@ -25,6 +25,7 @@ class MainActivity: FlutterActivity() {
         val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1, 416, 416, 3), DataType.FLOAT32)
         val tImage = TensorImage(DataType.FLOAT32)
         val floatArray = FloatArray(inputImage.size)
+        Log.d("INPUT BUFFER",inputImage.size.toString());
 
         // convert double (which flutter serializer expect) to float (which TF except)
         for (i in inputImage.indices) {
@@ -75,6 +76,9 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun getOutputFromYoloOutputBuffer (outputBuffer : FloatArray) : DoubleArray{
+        Log.d("OUTPUT BUFFER SIZE",outputBuffer.size.toString());
+        Log.d("OUTPUT BUFFER 2284",outputBuffer[2284].toString());
+
         var i = 0
         var maxIndex : Int = -1
         var maxScore : Float = 0F
@@ -100,6 +104,9 @@ class MainActivity: FlutterActivity() {
                 result[j] = newArr[j].toDouble()
             }
         }
+        Log.d("MAX SCORE",maxScore.toString());
+        Log.d("INDEX",maxIndex.toString());
+
 //        for (j in result.indices)
 //        Log.d("RESULT $j=>",result[j].toString());
 
