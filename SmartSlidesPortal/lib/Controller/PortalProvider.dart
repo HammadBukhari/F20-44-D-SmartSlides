@@ -18,7 +18,7 @@ class PortalProvider {
   ValueNotifier<Lecture> selectedLecture = ValueNotifier(null);
   final portalCol = 'portal';
 
-  PortalProvider() {}
+  PortalProvider();
   String _generateRandomString(int len) {
     var r = Random();
     const _chars =

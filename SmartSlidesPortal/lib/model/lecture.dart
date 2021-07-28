@@ -43,7 +43,7 @@ class Lecture {
 
   factory Lecture.fromMap(Map<String, dynamic> map) {
     final smartSlidesMap = map['smartSlides'];
-    Map<String, List<String>> slides = {};
+    var slides = <String, List<String>>{};
     if (smartSlidesMap != null) {
       print(smartSlidesMap.keys);
       for (final key in smartSlidesMap.keys) {

@@ -6,11 +6,9 @@ import 'package:getwidget/getwidget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:getwidget/shape/gf_button_shape.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:web/Controller/LoginProvider.dart';
 import 'package:web/view/home_screen.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../helper.dart';
 

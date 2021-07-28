@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 
+// ignore: missing_return
 Future<Float64List> platformChannel(Float64List imageData) async {
   const platform = const MethodChannel('SmartSlidesRecorder/YOLO');
   try {

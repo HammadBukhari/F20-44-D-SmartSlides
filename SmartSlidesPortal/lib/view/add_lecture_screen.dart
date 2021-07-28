@@ -1,31 +1,16 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
-import 'package:async/async.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:get/route_manager.dart';
-// import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:getwidget/colors/gf_color.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:uuid/uuid.dart';
 
 import '../Controller/LectureProvider.dart';
-import '../Controller/LoginProvider.dart';
 import '../Controller/PortalProvider.dart';
 import '../helper.dart';
-import '../model/lecture.dart';
 import 'home_screen.dart';
 
 class AddLectureScreen extends StatefulWidget {
@@ -157,7 +142,7 @@ class _AddLectureScreenState extends State<AddLectureScreen> {
 
   Future<void> uploadSmartSlides(String lectureId) async {
     final url =
-        'http://e4eac98bbec2.ngrok.io/process_slides/?lectureId=$lectureId';
+        'http://384c26059c9a.ngrok.io/process_slides/?lectureId=$lectureId';
     final res = await http.post(
       Uri.parse(url),
     );

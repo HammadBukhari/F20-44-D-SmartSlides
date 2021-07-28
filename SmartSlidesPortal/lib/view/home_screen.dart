@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,7 @@ import 'package:web/Controller/LectureProvider.dart';
 import 'package:web/Controller/LoginProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/main.dart';
+// ignore: library_prefixes
 import 'package:web/model/Response.dart' as AppResponse;
 import 'package:web/model/lecture.dart';
 import 'package:web/model/portal.dart';
@@ -665,6 +665,7 @@ Widget buildCourseLectureTitle(BuildContext context, Lecture lecture) {
                       )),
                   SizedBox(height: 5),
                   false
+                      // ignore: dead_code
                       ? Container(
                           height: 22.00,
                           width: 95.00,
@@ -1007,7 +1008,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  buildGroupCreatedDialog(String code) {
+  void buildGroupCreatedDialog(String code) {
     showDialog(
       context: context,
       builder: (context) {

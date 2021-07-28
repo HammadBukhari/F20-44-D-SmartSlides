@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web/main.dart';
-import 'package:web/model/portal.dart';
+
+import '../main.dart';
 import 'home_screen.dart';
 
 class MobileHomeScreen extends StatefulWidget {

@@ -1,33 +1,20 @@
 import 'dart:io';
-
-import 'dart:io';
 import 'dart:typed_data';
 
-// import 'package:camera/camera.dart';
 import 'package:archive/archive_io.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_ffmpeg/media_information.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-
-import 'package:permission_handler/permission_handler.dart';
 import 'package:recording/main.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as vt;
-import 'package:path/path.dart' as path;
-
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:native_pdf_view/native_pdf_view.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 
 import 'ML.dart';
 
@@ -46,8 +33,6 @@ class _VideoProcessingScreenState extends State<VideoProcessingScreen> {
   }
 
   Future<void> processVideo(String videoPath) async {
-    List<double> projectorCoordinates = [];
-    List<double> whiteboardCoordinates = [];
     List<File> allFiles = [];
     final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
     MediaInformation mediaInformation =
@@ -82,13 +67,13 @@ class _VideoProcessingScreenState extends State<VideoProcessingScreen> {
           getXYCoordinatesFromMLOutput(personOutput, height, width);
       if (isObjectDetected(personCorr)) continue;
 
+      // ignore: unused_local_variable
       List<double> projectCorr =
           getXYCoordinatesFromMLOutput(projectOutput, height, width);
+      // ignore: unused_local_variable
       List<double> whiteboardCorr =
           getXYCoordinatesFromMLOutput(whiteboardOutput, height, width);
 
-      projectorCoordinates = projectCorr;
-      whiteboardCoordinates = whiteboardCorr;
       // x1 0
       // y1 1
       // x2 2

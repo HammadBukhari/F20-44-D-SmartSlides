@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:getwidget/colors/gf_color.dart';
 import 'package:web/Controller/LectureProvider.dart';
 import 'package:web/Controller/PortalProvider.dart';
 import 'package:web/view/home_screen.dart';
@@ -43,18 +42,7 @@ Future<void> main() async {
             onRegistrationMode: true,
           ),
   ));
-  // runApp(
-  //   DevicePreview(
-  //     enabled: true,
-  //     builder: (context) => MyApp(
-  //       initScreen: userLoggedIn
-  //           ? HomeScreen()
-  //           : LoginScreen(
-  //               onRegistrationMode: true,
-  //             ),
-  //     ), // Wrap your app
-  //   ),
-  // );
+  
 }
 
 class MyApp extends StatelessWidget {

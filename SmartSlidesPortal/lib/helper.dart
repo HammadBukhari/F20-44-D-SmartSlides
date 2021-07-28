@@ -94,9 +94,7 @@ class HelperWidgets {
 }
 
 bool isMobile(BuildContext context) {
-  // final mq = MediaQuery.of(context);
-  //
-  //
+  
   return Get.width < 1000;
 }
 

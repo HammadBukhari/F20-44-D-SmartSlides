@@ -88,15 +88,6 @@ class _SlideViewScreenState extends State<SlideViewScreen> {
               ));
             },
           ),
-          // decoration:
-          // BoxDecoration(
-          //   borderRadius: BorderRadius.circular(15.0),
-          //   image: DecorationImage(
-          //     image: AssetImage(path),
-          //     fit: BoxFit.cover,
-          //   ),
-          //   border: Border.all(width: 1.0, color: const Color(0xff707070)),
-          // ),
         ),
       ),
     );

@@ -92,13 +92,7 @@ class LoginProvider {
 
       _setUser(authResult.user);
 
-      // set data of {user}
-
-      // String imageUrl;
-      // if (image != null) {
-      //   imageUrl = await uploadUserImage(image);
-      // }
-
+  
       await updateUserName(name, null);
 
       await storeUserInFirestore();
@@ -125,28 +119,7 @@ class LoginProvider {
     userStream.value = user;
   }
 
-  // Future<String> uploadUserImage(ui.Image toUpload) async {
-  //   var byteData = await toUpload.toByteData(format: ui.ImageByteFormat.png);
-  //   var buffer = byteData.buffer.asUint8List();
-  //   // final fileToUpload = File.fromRawPath(buffer);
-
-  //   // compress image
-  //   // img.Image image = img.decodeImage(buffer);
-  //   // img.Image thumbnail = img.copyResize(image, width: 500);
-  //   Directory tempDir = await getTemporaryDirectory();
-  //   String tempPath = tempDir.path;
-  //   String tempFilePath = path.join(tempPath, "temp.png");
-  //   final fileToUpload = File(tempFilePath)..writeAsBytesSync(buffer);
-
-  //   final storage = FirebaseStorage.instance;
-  //   // final StorageMetadata metaData = StorageMetadata()
-  //   final snapshot = await storage
-  //       .ref()
-  //       .child("user/profile_picture/${_user.uid}.png")
-  //       .putFile(fileToUpload)
-  //       .onComplete;
-  //   return await snapshot.ref.getDownloadURL();
-  // }
+ 
 
   Future<void> updateUserName(String name, String imageUrl,
       {String password}) async {
@@ -233,23 +206,7 @@ class LoginProvider {
     }
   }
 
-  // Future<void> updateUserProfile({String name, ui.Image image}) async {
-  //   String imageUrl;
-  //   if (image != null) {
-  //     imageUrl = await uploadUserImage(image);
-  //   }
 
-  //   await updateUserName(
-  //     name,
-  //     imageUrl,
-  //   );
-  //   await storeUserInFirestore(isUpdate: true);
-  //   Fluttertoast.showToast(
-  //       msg: "Profile updated",
-  //       backgroundColor: Colors.white,
-  //       textColor: Colors.black,
-  //       toastLength: Toast.LENGTH_LONG);
-  // }
 
   void sendResetPasswordEmail(String email) async {
     try {

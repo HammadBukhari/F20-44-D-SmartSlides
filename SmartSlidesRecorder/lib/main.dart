@@ -1,24 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
 
-// import 'package:camera/camera.dart';
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:flutter_ffmpeg/media_information.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
-
 import 'package:permission_handler/permission_handler.dart';
 import 'package:recording/video_processing_screen.dart';
-import 'package:video_thumbnail/video_thumbnail.dart' as vt;
-import 'package:path/path.dart' as path;
-
-import 'ML.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
